@@ -68,20 +68,22 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>ID</TableCell>
               <TableCell>Hình ảnh</TableCell>
               <TableCell>Tên sản phẩm</TableCell>
-              <TableCell align="center">Giá</TableCell>
+              <TableCell align="center">Giá (VNĐ)</TableCell>
               <TableCell align="center">Số lượng</TableCell>
               <TableCell align="center">Ngày tạo</TableCell>
               <TableCell align="center">Danh mục</TableCell>
               <TableCell align="center">Thương hiệu</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
-              <TableCell></TableCell>
+              <TableCell align="center">Chi tiết</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginated.map(product => (
               <TableRow key={product.id}>
+                <TableCell>{product.id}</TableCell>
                 <TableCell sx={{ width: 80, height: 80, overflow: "hidden" }}>
                   <img
                     src={product.image}
@@ -92,7 +94,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                   />
                 </TableCell>
                 <TableCell width={"30%"}>{product.name}</TableCell>
-                <TableCell align="center">{product.price}</TableCell>
+                <TableCell align="center">{product.price.toLocaleString()}</TableCell>
                 <TableCell align="center">{product.quantity}</TableCell>
                 <TableCell align="center">
                   {new Date(product.createdAt).toLocaleDateString("vi-VN")}

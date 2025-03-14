@@ -38,7 +38,7 @@ const OrderTracking: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Theo dõi đơn hàng
       </Typography>
-      <Box sx={{ width: "100%", mt: 4 }}>
+      <Box sx={{ width: "100%", mb: 4 }}>
         <Select value={statusFilter} onChange={handleStatusChange}>
           <MenuItem value="All">Tất cả</MenuItem>
           <MenuItem value="PENDING">Đang xử lý</MenuItem>

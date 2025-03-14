@@ -80,7 +80,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
                     <strong>Số lượng:</strong> {product.quantity}
                   </Typography>
                   <Typography>
-                    <strong>Giá:</strong> {product.product.price.toLocaleString()} VNĐ
+                    <strong>Giá:</strong> {(product.price / product.quantity).toLocaleString()} VNĐ
                   </Typography>
                 </Box>
               ))}

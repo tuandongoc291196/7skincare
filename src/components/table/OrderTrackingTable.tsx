@@ -49,14 +49,13 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
 
   return (
     <>
-      <TableContainer component={Paper} sx={{ marginBottom: "10px" }}>
+      <TableContainer component={Paper} sx={{ my: "10px" }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell align="center">Ngày tạo</TableCell>
-              <TableCell align="center">Số lượng sản phẩm</TableCell>
-              <TableCell align="center">Tổng tiền</TableCell>
+              <TableCell align="center">Tổng tiền (VNĐ)</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
               <TableCell align="center">Chi tiết</TableCell>
             </TableRow>
@@ -68,7 +67,6 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
                 <TableCell align="center">
                   {new Date(order.createAt).toLocaleDateString("vi-VN")}
                 </TableCell>
-                <TableCell align="center">{order.listProducts.length}</TableCell>
                 <TableCell align="center">{order.totalPrice.toLocaleString()}</TableCell>
                 <TableCell align="center">
                   <Chip

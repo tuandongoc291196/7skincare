@@ -113,7 +113,7 @@ const Profile: React.FC = () => {
 
           <TextField
             fullWidth
-            label="Name"
+            label="Tên"
             name="name"
             value={profile.name}
             onChange={handleChange}
@@ -137,7 +137,7 @@ const Profile: React.FC = () => {
           />
           <TextField
             fullWidth
-            label="Phone Number"
+            label="Số điện thoại"
             name="phoneNumber"
             value={profile.phoneNumber}
             onChange={handleChange}
@@ -152,7 +152,7 @@ const Profile: React.FC = () => {
           />
           <TextField
             fullWidth
-            label="Address"
+            label="Địa chỉ"
             name="address"
             value={profile.address}
             onChange={handleChange}

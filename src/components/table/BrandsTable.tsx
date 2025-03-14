@@ -42,8 +42,8 @@ const BrandsTable: React.FC<BrandsTableProps> = ({ brands, page, setPage }) => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Tên thương hiệu</TableCell>
-              <TableCell>Ngày tạo</TableCell>
-              <TableCell>Trạng thái</TableCell>
+              <TableCell align="center">Ngày tạo</TableCell>
+              <TableCell align="center">Trạng thái</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -51,8 +51,10 @@ const BrandsTable: React.FC<BrandsTableProps> = ({ brands, page, setPage }) => {
               <TableRow key={brand.id}>
                 <TableCell>{brand.id}</TableCell>
                 <TableCell>{brand.name}</TableCell>
-                <TableCell>{new Date(brand.createdAt).toLocaleString()}</TableCell>{" "}
-                <TableCell>
+                <TableCell align="center">
+                  {new Date(brand.createdAt).toLocaleString()}
+                </TableCell>{" "}
+                <TableCell align="center">
                   <Chip
                     label={brand.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}
                     color={brand.status === Statuses.ACTIVATED ? "success" : "error"}
