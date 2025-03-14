@@ -1,0 +1,25 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --primary-color: #434d87;
+  --primary-darker: #2b357e;
+  --warning-bg: #e0b252;
+  --success-bg: #459647;
+  --btn-accent-bgcolor-hover: #486d54;
+  --btn-accent-bgcolor: #558063;
+  --btn-shop-bgcolor: #434d87;
+  --btn-default-bgcolor: #f7f7f7;
+  --link-color: #333333;
+  --link-color-hover: #242424;
+}
