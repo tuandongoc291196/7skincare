@@ -2,6 +2,7 @@
 import React from "react";
 import { Box, Typography, Divider, Container, Link } from "@mui/material";
 import useAuthStore from "@/hooks/useAuth";
+import { Roles } from "@/constants/status";
 
 const Footer: React.FC = () => {
   const { user } = useAuthStore();
@@ -14,7 +15,7 @@ const Footer: React.FC = () => {
       }}
     >
       <Container maxWidth="lg">
-        {(user === null || user.roleName === "USER") && (
+        {(user === null || user.roleName === Roles.USER) && (
           <>
             <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={5}>
               {/* Left Section - Logo and Contact Info */}

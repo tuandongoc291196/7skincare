@@ -1,3 +1,4 @@
+import { OrderStatus } from "@/constants/status";
 import { Product } from "./product";
 
 export interface OrderData {
@@ -16,7 +17,7 @@ export interface OrderProduct {
   quantity: number;
   status: string;
   price: number;
-  product: Product;
+  productResponse: Product;
 }
 export interface Order {
   id: number;
@@ -24,6 +25,6 @@ export interface Order {
   address: string;
   phoneNumber: string;
   totalPrice: number;
-  status: string;
+  status: OrderStatus;
   listProducts: OrderProduct[];
 }

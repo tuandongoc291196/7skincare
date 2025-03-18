@@ -8,38 +8,40 @@ import {
   Button,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPosition } from "@/apis/position";
+import { createSkinType } from "@/apis/skin-type";
 
-interface AddPositionDialogProps {
+interface AddSkinTypeDialogProps {
   open: boolean;
   handleClose: () => void;
 }
 
-const AddPositionDialog: React.FC<AddPositionDialogProps> = ({ open, handleClose }) => {
+const AddSkinTypeDialog: React.FC<AddSkinTypeDialogProps> = ({ open, handleClose }) => {
   const queryClient = useQueryClient();
 
-  const addNewPosition = useMutation({
-    mutationKey: ["create-position"],
-    mutationFn: (name: string) => createPosition({ name }),
+  const addNewBrand = useMutation({
+    mutationKey: ["create-skinType"],
+    mutationFn: (type: string) => createSkinType({ type }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["get-positions"],
+        queryKey: ["get-skinTypes"],
       });
       handleClose();
     },
   });
-  const [newPosition, setNewPosition] = useState("");
+  const [newSkinType, setNewSkinType] = useState("");
 
   return (
     <Dialog open={open} onClose={handleClose} sx={{ minWidth: "400px" }}>
-      <DialogTitle>Thêm vị trí mới</DialogTitle>
+      <DialogTitle>Thêm loại da mới</DialogTitle>
       <DialogContent>
         <TextField
-          label="Tên vị trí"
-          value={newPosition}
-          onChange={e => setNewPosition(e.target.value)}
+          label="Tên loại da"
+          value={newSkinType}
+          onChange={e => setNewSkinType(e.target.value)}
           fullWidth
           margin="normal"
+          error={!newSkinType}
+          helperText={!newSkinType ? "Tên loại da không được để trống" : ""}
         />
       </DialogContent>
       <DialogActions>
@@ -47,9 +49,10 @@ const AddPositionDialog: React.FC<AddPositionDialogProps> = ({ open, handleClose
           Hủy
         </Button>
         <Button
-          onClick={() => addNewPosition.mutate(newPosition)}
+          onClick={() => addNewBrand.mutate(newSkinType)}
           color="primary"
           variant="contained"
+          disabled={!newSkinType}
         >
           Thêm
         </Button>
@@ -58,4 +61,4 @@ const AddPositionDialog: React.FC<AddPositionDialogProps> = ({ open, handleClose
   );
 };
 
-export default AddPositionDialog;
+export default AddSkinTypeDialog;

@@ -33,7 +33,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ open, handleClose
 
   return (
     <Dialog open={open} onClose={handleClose} sx={{ minWidth: "400px" }}>
-      <DialogTitle>Thêm thương hiệu mới</DialogTitle>
+      <DialogTitle>Thêm danh mục mới</DialogTitle>
       <DialogContent>
         <TextField
           label="Tên danh mục"

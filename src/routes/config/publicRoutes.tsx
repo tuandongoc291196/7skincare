@@ -6,6 +6,7 @@ import Login from "@/pages/Login";
 import OrderTracking from "@/pages/OrderTracking";
 import Products from "@/pages/Products";
 import Register from "@/pages/Register";
+import SkinTest from "@/pages/SkinTest";
 import { Route } from "@/types/common";
 
 export const publicRoutes: Route[] = [
@@ -23,6 +24,7 @@ export const publicRoutes: Route[] = [
   },
   {
     path: "/phan-tich-da",
+    component: <SkinTest />,
     name: "Phân tích da",
     hidden: false,
   },

@@ -55,7 +55,7 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
                 <TableCell>{categories.id}</TableCell>
                 <TableCell>{categories.name}</TableCell>
                 <TableCell>{categories.description}</TableCell>
-                <TableCell>{new Date(categories.createdAt).toLocaleString()}</TableCell>{" "}
+                <TableCell>{new Date(categories.createdAt).toLocaleString("vi-VN")}</TableCell>
                 <TableCell>
                   <Chip
                     label={categories.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}

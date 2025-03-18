@@ -1,4 +1,5 @@
 // src/router/publicRouter.tsx
+import { Roles } from "@/constants/status";
 import useAuthStore from "@/hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 
@@ -6,10 +7,10 @@ export default function PublicRouter() {
   const { isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated) {
-    if (user?.roleName === "STAFF") {
+    if (user?.roleName === Roles.STAFF) {
       return <Navigate to="/quan-ly-san-pham" />;
     }
-    if (user?.roleName === "ADMIN") {
+    if (user?.roleName === Roles.ADMIN) {
       return <Navigate to="/quan-ly-tai-khoan" />;
     }
   }

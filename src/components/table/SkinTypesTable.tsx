@@ -7,19 +7,17 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Chip,
   TablePagination,
 } from "@mui/material";
-import { Statuses } from "@/constants/status";
-import { Position } from "@/types/schema/position";
+import { SkinType } from "@/types/schema/skin-type";
 
-interface PositionsTableProps {
-  positions: Position[];
+interface SkinTypesTableProps {
+  skinTypes: SkinType[];
   page: number;
   setPage: (page: number) => void;
 }
 
-const PositionsTable: React.FC<PositionsTableProps> = ({ positions, page, setPage }) => {
+const SkinTypesTable: React.FC<SkinTypesTableProps> = ({ skinTypes, page, setPage }) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -31,7 +29,8 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, page, setPag
     setPage(0);
   };
 
-  const paginatedPositions = positions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginated = skinTypes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   return (
     <>
       <TableContainer component={Paper} sx={{ marginBottom: "10px" }}>
@@ -39,23 +38,14 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, page, setPag
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Tên vị trí</TableCell>
-              <TableCell>Ngày tạo</TableCell>
-              <TableCell>Trạng thái</TableCell>
+              <TableCell>Loại da</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedPositions.map(position => (
-              <TableRow key={position.id}>
-                <TableCell>{position.id}</TableCell>
-                <TableCell>{position.name}</TableCell>
-                <TableCell>{new Date(position.createdAt).toLocaleString("vi-VN")}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={position.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}
-                    color={position.status === Statuses.ACTIVATED ? "success" : "error"}
-                  />
-                </TableCell>
+            {paginated.map(skinType => (
+              <TableRow key={skinType.id}>
+                <TableCell>{skinType.id}</TableCell>
+                <TableCell>{skinType.type}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -64,7 +54,7 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, page, setPag
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={positions.length}
+        count={skinTypes.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -74,4 +64,4 @@ const PositionsTable: React.FC<PositionsTableProps> = ({ positions, page, setPag
   );
 };
 
-export default PositionsTable;
+export default SkinTypesTable;

@@ -1,8 +1,8 @@
-import { Status } from "@/constants/status";
+import { Role, Status } from "@/constants/status";
 
 export interface User {
   token: string;
-  roleName: string;
+  roleName: Role;
   accountId: number;
   name: string;
   createAt: string;
@@ -49,4 +49,5 @@ export interface Account {
   id: number;
   createAt: string;
   status: Status;
+  roleName: Role;
 }

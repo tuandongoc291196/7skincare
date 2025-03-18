@@ -1,20 +1,50 @@
-import { AppBar, Badge, Box, Button, IconButton, Toolbar, Menu, MenuItem } from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { publicRoutes } from "@/routes/config/publicRoutes";
-import { staffRoutes } from "@/routes/config/staffRoutes";
-import { adminRoutes } from "@/routes/config/adminRoutes";
+import {
+  AppBar,
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Menu,
+  MenuItem,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  Person,
+  ShoppingBag,
+  ShoppingCart,
+  Menu as MenuIcon,
+  Close as CloseIcon,
+  ExitToApp,
+  AccountCircle,
+} from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Person, ShoppingBag } from "@mui/icons-material";
 import { useState } from "react";
 import useAuthStore from "@/hooks/useAuth";
 import useCartStore from "@/hooks/useCart";
+import { Roles } from "@/constants/status";
+import { publicRoutes } from "@/routes/config/publicRoutes";
+import { staffRoutes } from "@/routes/config/staffRoutes";
+import { adminRoutes } from "@/routes/config/adminRoutes";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuthStore();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { items } = useCartStore();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -22,24 +52,19 @@ const Header = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+    setDrawerOpen(false);
   };
 
   const handleLogout = () => {
-    logout();
     handleMenuClose();
+    logout();
     navigate("/dang-nhap");
   };
 
   const getRoutes = () => {
-    if (user?.roleName === "USER") {
-      return publicRoutes;
-    }
-    if (user?.roleName === "STAFF") {
-      return staffRoutes;
-    }
-    if (user?.roleName === "ADMIN") {
-      return adminRoutes;
-    }
+    if (user?.roleName === Roles.USER) return publicRoutes;
+    if (user?.roleName === Roles.STAFF) return staffRoutes;
+    if (user?.roleName === Roles.ADMIN) return adminRoutes;
     return publicRoutes;
   };
 
@@ -52,58 +77,40 @@ const Header = () => {
         color: "#000",
       }}
     >
-      <Toolbar
-        sx={{
-          justifyContent: "space-between",
-        }}
-      >
-        <Box>
+      <Toolbar sx={{ justifyContent: "space-between", alignItems: "center" }}>
+        {/* Logo */}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <img src="/logo.png" width={90} height={90} />
         </Box>
 
-        <Box
-          className="nav"
-          sx={{
-            flexGrow: 1,
-            display: "flex",
-            justifyContent: "center",
-            gap: "20px",
-          }}
-        >
-          {getRoutes()
-            .filter(item => item.hidden === false)
-            .map(route => {
-              const isActive = location.pathname === route.path;
-              return (
+        {/* Desktop Navigation */}
+        {!isMobile && (
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", gap: "20px" }}>
+            {getRoutes()
+              .filter(item => !item.hidden)
+              .map(route => (
                 <Button
                   key={route.path}
                   color="inherit"
                   href={route.path}
                   sx={{
-                    color: isActive ? "var(--primary-color)" : "inherit",
-                    fontWeight: isActive ? "bold" : "normal",
-                    "&:hover": {
-                      color: "var(--primary-color)",
-                    },
+                    color: location.pathname === route.path ? "var(--primary-color)" : "inherit",
+                    fontWeight: location.pathname === route.path ? "bold" : "normal",
+                    "&:hover": { color: "var(--primary-color)" },
                   }}
                 >
                   {route.name}
                 </Button>
-              );
-            })}
-        </Box>
+              ))}
+          </Box>
+        )}
 
-        <Box
-          className="actions"
-          sx={{
-            display: "flex",
-            gap: "10px",
-          }}
-        >
-          {(user === null || user.roleName === "USER") && (
+        {/* Actions (Cart & User) */}
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          {(user === null || user.roleName === Roles.USER) && (
             <IconButton color="inherit" href="/gio-hang">
               <Badge badgeContent={items.length} color="error">
-                <ShoppingCartIcon />
+                <ShoppingCart />
               </Badge>
             </IconButton>
           )}
@@ -116,18 +123,23 @@ const Header = () => {
               </Button>
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem onClick={() => navigate("/thong-tin-ca-nhan")}>
-                  <Person sx={{ marginRight: "10px" }} />
+                  <ListItemIcon>
+                    <AccountCircle />
+                  </ListItemIcon>
                   Thông tin cá nhân
                 </MenuItem>
-                {(user === null || user.roleName === "USER") && (
+                {(user === null || user.roleName === Roles.USER) && (
                   <MenuItem onClick={() => navigate("/theo-doi-don-hang")}>
-                    <ShoppingBag sx={{ marginRight: "10px" }} />
+                    <ListItemIcon>
+                      <ShoppingBag />
+                    </ListItemIcon>
                     Đơn hàng
                   </MenuItem>
                 )}
-
                 <MenuItem onClick={handleLogout}>
-                  <Person sx={{ marginRight: "10px" }} />
+                  <ListItemIcon>
+                    <ExitToApp />
+                  </ListItemIcon>
                   Đăng xuất
                 </MenuItem>
               </Menu>
@@ -137,8 +149,102 @@ const Header = () => {
               <Person />
             </IconButton>
           )}
+
+          {/* Mobile Menu Icon */}
+          {isMobile && (
+            <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+          )}
         </Box>
       </Toolbar>
+
+      {/* Mobile Drawer */}
+      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Box sx={{ width: 280, p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+          {/* Drawer Header with Close Button */}
+          <Box
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
+          >
+            <img src="/logo.png" width={70} height={70} />
+            <IconButton onClick={() => setDrawerOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <Divider />
+
+          {/* Navigation Links */}
+          <List>
+            {getRoutes()
+              .filter(item => !item.hidden)
+              .map(route => (
+                <ListItem key={route.path} disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate(route.path);
+                      setDrawerOpen(false);
+                    }}
+                  >
+                    <ListItemText primary={route.name} sx={{ textTransform: "capitalize" }} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+          </List>
+
+          <Divider />
+
+          {/* User Section */}
+          {isAuthenticated ? (
+            <>
+              <List>
+                <ListItem disablePadding>
+                  <ListItemButton onClick={() => navigate("/thong-tin-ca-nhan")}>
+                    <ListItemIcon>
+                      <AccountCircle />
+                    </ListItemIcon>
+                    <ListItemText primary="Thông tin cá nhân" />
+                  </ListItemButton>
+                </ListItem>
+                {(user === null || user.roleName === Roles.USER) && (
+                  <ListItem disablePadding>
+                    <ListItemButton onClick={() => navigate("/theo-doi-don-hang")}>
+                      <ListItemIcon>
+                        <ShoppingBag />
+                      </ListItemIcon>
+                      <ListItemText primary="Đơn hàng" />
+                    </ListItemButton>
+                  </ListItem>
+                )}
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleLogout}>
+                    <ListItemIcon>
+                      <ExitToApp />
+                    </ListItemIcon>
+                    <ListItemText primary="Đăng xuất" />
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </>
+          ) : (
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    navigate("/dang-nhap");
+                  }}
+                >
+                  <ListItemIcon>
+                    <Person />
+                  </ListItemIcon>
+                  <ListItemText primary="Đăng nhập" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          )}
+        </Box>
+      </Drawer>
     </AppBar>
   );
 };

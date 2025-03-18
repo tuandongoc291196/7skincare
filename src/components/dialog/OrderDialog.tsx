@@ -74,7 +74,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
                   }}
                 >
                   <Typography>
-                    <strong>Tên sản phẩm:</strong> {product.product.name}
+                    <strong>Tên sản phẩm:</strong> {product.productResponse.name}
                   </Typography>
                   <Typography>
                     <strong>Số lượng:</strong> {product.quantity}

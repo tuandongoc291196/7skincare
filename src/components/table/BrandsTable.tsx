@@ -52,7 +52,7 @@ const BrandsTable: React.FC<BrandsTableProps> = ({ brands, page, setPage }) => {
                 <TableCell>{brand.id}</TableCell>
                 <TableCell>{brand.name}</TableCell>
                 <TableCell align="center">
-                  {new Date(brand.createdAt).toLocaleString()}
+                  {new Date(brand.createdAt).toLocaleString("vi-VN")}
                 </TableCell>{" "}
                 <TableCell align="center">
                   <Chip
