@@ -6,6 +6,7 @@ import { getProducts } from "@/apis/product";
 import ProductsTable from "@/components/table/ProductsTable";
 import { getCategories } from "@/apis/category";
 import { getBrands } from "@/apis/brand";
+import { getSkinTypes } from "@/apis/skin-type";
 import AddProductDialog from "@/components/dialog/AddProductDialog";
 import FilterSection from "@/components/section/FilterSection";
 
@@ -25,6 +26,10 @@ const ManageProducts = () => {
   const { data: brands, isLoading: isLoadingBrands } = useQuery({
     queryKey: ["get-brands"],
     queryFn: () => getBrands(),
+  });
+  const { data: skinTypes, isLoading: isLoadingSkinTypes } = useQuery({
+    queryKey: ["get-skin-types"],
+    queryFn: () => getSkinTypes(),
   });
   // Filter states
   const [brandFilter, setBrandFilter] = useState("");
@@ -146,13 +151,15 @@ const ManageProducts = () => {
           />
         )
       )}
-      {!(isLoadingProducts || isLoadingBrands || isLoadingCategories) && categories && brands && (
+      {!(isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkinTypes) && categories && brands && skinTypes && (
         <AddProductDialog
           handleClose={handleClose}
           open={open}
           categories={categories}
           isLoadingCategories={isLoadingCategories}
           brands={brands}
+          skinTypes={skinTypes}
+          isLoadingSkinTypes={isLoadingSkinTypes}
           isLoadingBrands={isLoadingBrands}
         />
       )}

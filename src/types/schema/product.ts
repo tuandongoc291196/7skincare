@@ -25,6 +25,7 @@ export interface ProductCreate {
   name: string;
   price: number;
   quantity: number;
+  skinTypeId: number[];
 }
 
 export interface ProductUpdate {

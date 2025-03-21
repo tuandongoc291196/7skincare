@@ -25,12 +25,15 @@ import { Brand } from "@/types/schema/brand";
 import { Image } from "@mui/icons-material";
 import { useAlert } from "@/hooks/useAlert";
 import useAuthStore from "@/hooks/useAuth";
+import { SkinType } from "@/types/schema/skin-type";
 
 interface AddProductDialogProps {
   open: boolean;
   handleClose: () => void;
   categories: Category[];
   brands: Brand[];
+  skinTypes: SkinType[];
+  isLoadingSkinTypes: boolean;
   isLoadingCategories: boolean;
   isLoadingBrands: boolean;
 }
@@ -39,7 +42,9 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
   open,
   handleClose,
   brands,
+  skinTypes,
   categories,
+  isLoadingSkinTypes,
   isLoadingBrands,
   isLoadingCategories,
 }) => {
@@ -56,6 +61,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     name: "",
     price: 0,
     quantity: 0,
+    skinTypeId: [],
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -78,6 +84,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
         name: "",
         price: 0,
         quantity: 0,
+        skinTypeId: [],
       });
       setSelectedFile(null);
       setErrors({});
@@ -88,9 +95,15 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     },
   });
 
-  const handleChange = (event: { target: { name: string; value: string | number } }) => {
+  const handleChange = (event: { target: { name: string; value: string | number | number[] } }) => {
+    
     const { name, value } = event.target;
-    setNewProduct({ ...newProduct, [name]: value });
+    if (name === "skinTypeId") {
+      // Handle skinTypeId as an array
+      setNewProduct({ ...newProduct, [name]: value as number[] });
+    } else{
+      setNewProduct({ ...newProduct, [name]: value });
+    }
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -117,7 +130,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     if (newProduct.categoryId === 0) newErrors.categoryId = "Vui lòng chọn danh mục";
     if (newProduct.brandId === 0) newErrors.brandId = "Vui lòng chọn thương hiệu";
     if (!newProduct.image) newErrors.image = "Vui lòng chọn hình ảnh";
-
+    if (newProduct.skinTypeId.length === 0) newErrors.skinTypeId = "Vui lòng chọn loại da";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
   };
@@ -192,7 +205,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
             )}
           </Grid>
           <Grid item xs={12} sm={7}>
-            {isLoadingBrands || isLoadingCategories ? (
+            {isLoadingBrands || isLoadingCategories || isLoadingSkinTypes ? (
               <Box
                 display="flex"
                 justifyContent="center"
@@ -292,6 +305,24 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   {errors.brandId && (
                     <Typography color="error" variant="caption">
                       {errors.brandId}
+                    </Typography>
+                  )}
+                </FormControl>
+                <FormControl fullWidth margin="dense" error={!!errors.skinTypeId}>
+                  <InputLabel>Loại da</InputLabel>
+                  <Select name="skinTypeId" value={newProduct.skinTypeId} multiple onChange={handleChange}>
+                    <MenuItem value={0} disabled>
+                      Chọn loại da
+                    </MenuItem>
+                    {skinTypes?.map(skinType => (
+                      <MenuItem key={skinType.id} value={skinType.id}>
+                        {skinType.type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.skinTypeId && (
+                    <Typography color="error" variant="caption">
+                      {errors.skinTypeId}
                     </Typography>
                   )}
                 </FormControl>
