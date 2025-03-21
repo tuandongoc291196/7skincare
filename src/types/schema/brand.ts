@@ -6,3 +6,7 @@ export interface Brand {
   status: Status;
   createdAt: string;
 }
+export interface BrandUpdate {
+  id: number;
+  name: string;
+}

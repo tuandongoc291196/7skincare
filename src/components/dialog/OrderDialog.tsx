@@ -10,9 +10,11 @@ import {
   Divider,
   Box,
   useTheme,
+  Chip,
 } from "@mui/material";
 import { Order } from "@/types/schema/order";
 import useAuthStore from "@/hooks/useAuth";
+import { OrderStatuses } from "@/constants/status";
 
 interface OrderDialogProps {
   open: boolean;
@@ -48,7 +50,25 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
               <strong>Tổng giá:</strong> {order.totalPrice.toLocaleString()} VND
             </Typography>
             <Typography>
-              <strong>Trạng thái:</strong> {order.status}
+              <strong>Trạng thái:</strong>
+              <Chip
+                sx={{ ml: 1 }}
+                size="small"
+                label={
+                  order.status === OrderStatuses.PENDING
+                    ? "Đang xử lí"
+                    : order.status === OrderStatuses.SUCCESS
+                      ? "Hoàn Thành"
+                      : "Thất bại"
+                }
+                color={
+                  order.status === OrderStatuses.PENDING
+                    ? "warning"
+                    : order.status === OrderStatuses.SUCCESS
+                      ? "success"
+                      : "error"
+                }
+              />
             </Typography>
           </Grid>
           <Grid item xs={12}>

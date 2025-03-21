@@ -64,7 +64,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
 
   return (
     <>
-      <TableContainer component={Paper} sx={{ marginBottom: "10px" }}>
+      <TableContainer component={Paper} sx={{ my: "10px" }}>
         <Table>
           <TableHead>
             <TableRow>

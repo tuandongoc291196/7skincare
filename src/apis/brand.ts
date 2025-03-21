@@ -1,4 +1,4 @@
-import { Brand } from "@/types/schema/brand";
+import { Brand, BrandUpdate } from "@/types/schema/brand";
 import apiClient from "./client";
 
 export const BASE_PATH = "/brand";
@@ -11,5 +11,8 @@ const getBrands = async (): Promise<Brand[]> => {
   const response = await apiClient.get(BASE_PATH + "/get-all");
   return response.data.data;
 };
-
-export { createBrand, getBrands };
+const updateBrand = async (data: BrandUpdate) => {
+  const response = await apiClient.put(BASE_PATH + "/update/", data);
+  return response.data;
+};
+export { createBrand, getBrands, updateBrand };

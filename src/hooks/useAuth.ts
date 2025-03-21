@@ -1,14 +1,8 @@
 // src/store/useAuthStore.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { login, registerUser, registerStaff } from "@/apis/auth";
-import {
-  LoginData,
-  RegisterStaffData,
-  RegisterUserData,
-  UpdateAccountData,
-  User,
-} from "@/types/schema/user";
+import { login, registerUser } from "@/apis/auth";
+import { LoginData, RegisterUserData, UpdateAccountData, User } from "@/types/schema/user";
 
 // Define the auth store interface
 interface AuthStore {
@@ -17,7 +11,6 @@ interface AuthStore {
   isLoading: boolean;
   login: (credentials: LoginData) => Promise<void>;
   registerUser: (data: RegisterUserData) => Promise<void>;
-  registerStaff: (data: RegisterStaffData) => Promise<void>;
   logout: () => void;
   checkAuth: () => boolean;
   updateUser: (updatedData: UpdateAccountData) => void;
@@ -54,24 +47,6 @@ export const useAuthStore = create<AuthStore>()(
           const user = await login({ email: data.email, password: data.password });
           set({
             user: user.data,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
-
-      registerStaff: async (data: RegisterStaffData) => {
-        try {
-          set({ isLoading: true });
-          await registerStaff(data);
-          const user = await login({ email: data.email, password: data.password });
-          set({
-            user,
             isAuthenticated: true,
             isLoading: false,
           });

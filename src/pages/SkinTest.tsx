@@ -25,7 +25,6 @@ const SkinTest: React.FC = () => {
   const testSkin = useMutation({
     mutationKey: ["create-test"],
     mutationFn: (data: SkinTestData) => createTest(data),
-    onSuccess: () => alert("Bài kiểm tra đã được nộp thành công!"),
     onError: (error: AxiosError) => {
       if (error?.status === 403) {
         showAlert("Vui lòng đăng nhập để tiếp tục", "error");
@@ -67,7 +66,7 @@ const SkinTest: React.FC = () => {
   };
 
   if (isLoading) return <LoadingSection />;
-  if (testSkin.isSuccess) return <ResultSkinTestSection />;
+  if (testSkin.isSuccess) return <ResultSkinTestSection result={testSkin.data} />;
 
   const currentQuestion = data?.[currentQuestionIndex];
 

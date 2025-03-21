@@ -7,3 +7,9 @@ export interface Category {
   status: Status;
   createdAt: string;
 }
+
+export interface CategoryUpdate {
+  description: string;
+  id: number;
+  name: string;
+}

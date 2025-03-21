@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
-import AddBrandDialog from "@/components/dialog/AddBrandDialog";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSection from "@/components/section/LoadingSection";
 import AccountsTable from "@/components/table/AccountsTable";
 import { getAccounts } from "@/apis/account";
+import AddStaffAccountDialog from "@/components/dialog/AddStaffAccountDialog";
 
 const ManageAccounts = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["get-accounts"],
@@ -22,7 +23,6 @@ const ManageAccounts = () => {
   const handleClose = () => {
     setOpen(false);
   };
-
   return (
     <Container sx={{ marginTop: "20px" }}>
       <Box display={"flex"} justifyContent={"space-between"} sx={{ marginBottom: "10px" }}>
@@ -31,7 +31,7 @@ const ManageAccounts = () => {
         </Typography>
         <Box display={"flex"} gap={2}>
           <Button variant="contained" color="primary" onClick={handleOpen}>
-            Thêm tài khoản
+            Thêm tài khoản nhân viên
           </Button>
         </Box>
       </Box>
@@ -39,9 +39,15 @@ const ManageAccounts = () => {
       {isLoading ? (
         <LoadingSection />
       ) : (
-        <AccountsTable accounts={data ?? []} page={page} setPage={setPage} />
+        <AccountsTable
+          accounts={data ?? []}
+          page={page}
+          setPage={setPage}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
       )}
-      <AddBrandDialog handleClose={handleClose} open={open} />
+      <AddStaffAccountDialog onClose={handleClose} open={open} />
     </Container>
   );
 };

@@ -117,6 +117,7 @@ const AccountDialog: React.FC<AccountDetailDialogProps> = ({
               color={account.status === Statuses.ACTIVATED ? "error" : "success"}
               variant="contained"
               size="small"
+              disabled={account.roleName === Roles.ADMIN}
             >
               {account.status === Statuses.ACTIVATED ? "Vô hiệu hóa" : "Kích hoạt"}
             </Button>

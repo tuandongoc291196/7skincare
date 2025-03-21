@@ -11,8 +11,8 @@ export const Roles = {
 
 export const OrderStatuses = {
   PENDING: "PENDING",
-  COMPLETED: "COMPLETED",
-  FAILED: "FAILED",
+  SUCCESS: "SUCCESS",
+  CANCELED: "CANCELED",
 } as const;
 
 export type OrderStatus = (typeof OrderStatuses)[keyof typeof OrderStatuses];

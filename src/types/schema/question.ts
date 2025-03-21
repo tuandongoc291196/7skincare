@@ -23,3 +23,13 @@ export interface Answer {
   createdAt: string;
   status: Status;
 }
+
+export interface QuestionUpdate {
+  answers: {
+    answer: string;
+    id: number;
+    point: number;
+  }[];
+  id: number;
+  question: string;
+}

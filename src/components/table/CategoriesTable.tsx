@@ -9,9 +9,17 @@ import {
   Paper,
   Chip,
   TablePagination,
+  IconButton,
 } from "@mui/material";
 import { Statuses } from "@/constants/status";
-import { Category } from "@/types/schema/category";
+import { Category, CategoryUpdate } from "@/types/schema/category";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateCategory } from "@/apis/category";
+import { useAlert } from "@/hooks/useAlert";
+import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
+import { Edit } from "@mui/icons-material";
+import UpdateCategoryDialog from "../dialog/UpdateCategoryDialog";
 
 interface CategoriesTableProps {
   categories: Category[];
@@ -20,6 +28,28 @@ interface CategoriesTableProps {
 }
 
 const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, setPage }) => {
+  const { showAlert } = useAlert();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [category, setCategory] = useState<CategoryUpdate | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const updateCategoryMutation = useMutation({
+    mutationKey: ["update-category"],
+    mutationFn: (data: CategoryUpdate) => updateCategory(data),
+    onSuccess: async () => {
+      showAlert("Cập nhật danh mục thành công", "success");
+      await queryClient.invalidateQueries({ queryKey: ["get-categories"] });
+      setDialogOpen(false);
+    },
+    onError: (error: AxiosError) => {
+      if (error?.status === 400 || error?.status === 403) {
+        showAlert("Vui lòng đăng nhập để tiếp tục", "error");
+        navigate("/dang-nhap");
+      } else showAlert("Cập nhật danh mục thất bại", "error");
+    },
+  });
+
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -29,6 +59,32 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleOpenDialog = (selectedCategory: Category) => {
+    setCategory({
+      description: selectedCategory.description,
+      id: selectedCategory.id,
+      name: selectedCategory.name,
+    });
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setCategory(null);
+  };
+
+  const handleUpdateCategory = () => {
+    if (category) {
+      updateCategoryMutation.mutate(category);
+    }
+  };
+
+  const handleInputChange = (field: keyof CategoryUpdate, value: string) => {
+    if (category) {
+      setCategory({ ...category, [field]: value });
+    }
   };
 
   const paginatedCategories = categories.slice(
@@ -47,20 +103,26 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
               <TableCell>Mô tả</TableCell>
               <TableCell>Ngày tạo</TableCell>
               <TableCell>Trạng thái</TableCell>
+              <TableCell>Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedCategories.map(categories => (
-              <TableRow key={categories.id}>
-                <TableCell>{categories.id}</TableCell>
-                <TableCell>{categories.name}</TableCell>
-                <TableCell>{categories.description}</TableCell>
-                <TableCell>{new Date(categories.createdAt).toLocaleString("vi-VN")}</TableCell>
+            {paginatedCategories.map(category => (
+              <TableRow key={category.id}>
+                <TableCell>{category.id}</TableCell>
+                <TableCell>{category.name}</TableCell>
+                <TableCell>{category.description}</TableCell>
+                <TableCell>{new Date(category.createdAt).toLocaleString("vi-VN")}</TableCell>
                 <TableCell>
                   <Chip
-                    label={categories.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}
-                    color={categories.status === Statuses.ACTIVATED ? "success" : "error"}
+                    label={category.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}
+                    color={category.status === Statuses.ACTIVATED ? "success" : "error"}
                   />
+                </TableCell>
+                <TableCell align="center">
+                  <IconButton onClick={() => handleOpenDialog(category)}>
+                    <Edit />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -75,6 +137,14 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+
+      <UpdateCategoryDialog
+        category={category}
+        dialogOpen={dialogOpen}
+        handleCloseDialog={handleCloseDialog}
+        handleInputChange={handleInputChange}
+        handleUpdateCategory={handleUpdateCategory}
       />
     </>
   );

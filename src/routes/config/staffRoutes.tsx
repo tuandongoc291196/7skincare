@@ -1,3 +1,4 @@
+import ManageBlogs from "@/pages/ManageBlogs";
 import ManageBrands from "@/pages/ManageBrands";
 import ManageCategories from "@/pages/ManageCategories";
 import ManageOrders from "@/pages/ManageOrders";
@@ -34,6 +35,12 @@ export const staffRoutes: Route[] = [
     path: "/quan-ly-cau-hoi",
     component: <ManageQuestions />,
     name: "Câu hỏi",
+    hidden: false,
+  },
+  {
+    path: "/quan-ly-blog",
+    component: <ManageBlogs />,
+    name: "Blog",
     hidden: false,
   },
 ];

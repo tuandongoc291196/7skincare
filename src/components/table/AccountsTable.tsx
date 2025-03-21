@@ -29,17 +29,23 @@ interface AccountsTableProps {
   accounts: Account[];
   page: number;
   setPage: (page: number) => void;
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const AccountsTable: React.FC<AccountsTableProps> = ({ accounts, page, setPage }) => {
+const AccountsTable: React.FC<AccountsTableProps> = ({
+  accounts,
+  page,
+  setPage,
+  searchQuery,
+  setSearchQuery,
+}) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
   // Debounce search input to avoid excessive filtering
   useEffect(() => {
     const handler = setTimeout(() => {

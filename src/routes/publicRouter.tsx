@@ -8,7 +8,7 @@ export default function PublicRouter() {
 
   if (isAuthenticated) {
     if (user?.roleName === Roles.STAFF) {
-      return <Navigate to="/quan-ly-san-pham" />;
+      return <Navigate to="/quan-ly-don-hang" />;
     }
     if (user?.roleName === Roles.ADMIN) {
       return <Navigate to="/quan-ly-tai-khoan" />;
