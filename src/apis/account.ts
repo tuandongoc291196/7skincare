@@ -19,12 +19,12 @@ const getAccounts = async (): Promise<Account[]> => {
 };
 
 const deleteAccount = async (id: number) => {
-  const response = await apiClient.delete(BASE_PATH + "/", { params: { id: id } });
+  const response = await apiClient.delete(BASE_PATH + "/delete/", { params: { id: id } });
   return response.data;
 };
 
 const activateAccount = async (id: number) => {
-  const response = await apiClient.put(BASE_PATH + "/activate", { params: { id: id } });
+  const response = await apiClient.put(BASE_PATH + "/activate/", { params: { id: id } });
   return response.data;
 };
 

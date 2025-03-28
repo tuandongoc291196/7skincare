@@ -1,6 +1,7 @@
 import { Status } from "@/constants/status";
 import { SkinType } from "./skin-type";
 import { Account } from "./user";
+import { Product } from "./product";
 
 export interface QA {
   answerId: number;
@@ -39,4 +40,5 @@ export interface SkinTestResult {
   userTestResponse: UserTestResponse[];
   skinType: SkinType;
   user: Account;
+  suitableProducts: Product[];
 }

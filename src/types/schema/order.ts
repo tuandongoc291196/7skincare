@@ -28,3 +28,10 @@ export interface Order {
   status: OrderStatus;
   listProducts: OrderProduct[];
 }
+
+export interface OrderHistorySteps {
+  id: number;
+  createAt: string;
+  description: string;
+  status: OrderStatus;
+}

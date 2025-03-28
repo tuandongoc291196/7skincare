@@ -11,9 +11,8 @@ import { useSearchParams } from "react-router-dom";
 const OrderTracking: React.FC = () => {
   const { user } = useAuthStore();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Get status from URL or default to "All"
   const statusFromUrl = searchParams.get("status") || "All";
+  const idFromUrl = searchParams.get("id");
   const [statusFilter, setStatusFilter] = useState<string>(statusFromUrl);
   const [page, setPage] = useState<number>(0);
 
@@ -31,13 +30,20 @@ const OrderTracking: React.FC = () => {
     setStatusFilter(newValue);
     setPage(0);
 
-    // Update URL params
     setSearchParams({ status: newValue });
   };
 
   const filteredOrders =
-    data?.filter((order: Order) => statusFilter === "All" || order.status === statusFilter) || [];
-  console.log(data, isLoading);
+    data?.filter((order: Order) => {
+      const matchesStatus = statusFilter === "All" || order.status === statusFilter;
+
+      const matchesId = idFromUrl ? order.id === parseInt(idFromUrl) : true;
+
+      return matchesStatus && matchesId;
+    }) || [];
+
+  const orders = [...filteredOrders].reverse();
+
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -53,7 +59,10 @@ const OrderTracking: React.FC = () => {
         >
           <Tab label="Tất cả" value="All" />
           <Tab label="Đang xử lý" value={OrderStatuses.PENDING} />
-          <Tab label="Hoàn thành" value={OrderStatuses.SUCCESS} />
+          <Tab label="Chờ thanh toán" value={OrderStatuses.APPROVED} />
+          <Tab label="Đã thanh toán" value={OrderStatuses.SUCCESS} />
+          <Tab label="Giao hàng thành công" value={OrderStatuses.DONE} />
+          <Tab label="Bị từ chối" value={OrderStatuses.REJECTED} />
           <Tab label="Thất bại" value={OrderStatuses.CANCELED} />
         </Tabs>
         {isLoading ? (
@@ -61,12 +70,7 @@ const OrderTracking: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <OrderTrackingTable
-            orders={filteredOrders}
-            page={page}
-            setPage={setPage}
-            status={statusFilter}
-          />
+          <OrderTrackingTable orders={orders} page={page} setPage={setPage} status={statusFilter} />
         )}
       </Box>
     </Container>

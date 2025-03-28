@@ -1,10 +1,13 @@
 import React from "react";
 import { Card, CardContent, Typography, CardMedia, Box } from "@mui/material";
 import { Blog } from "@/types/schema/blog";
+import { useNavigate } from "react-router-dom";
 
 const BlogCard: React.FC<{ blog: Blog }> = ({ blog }) => {
+  const navigate = useNavigate();
   return (
     <Card
+      onClick={() => navigate(`/blog/${blog.id}`)}
       sx={{
         height: "100%",
         display: "flex",
@@ -12,6 +15,12 @@ const BlogCard: React.FC<{ blog: Blog }> = ({ blog }) => {
         borderRadius: 3,
         boxShadow: 3,
         overflow: "hidden",
+        cursor: "pointer",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.05)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+        },
       }}
     >
       {/* Blog Image */}

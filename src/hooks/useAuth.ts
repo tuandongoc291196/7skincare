@@ -44,10 +44,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ isLoading: true });
           await registerUser(data);
-          const user = await login({ email: data.email, password: data.password });
           set({
-            user: user.data,
-            isAuthenticated: true,
             isLoading: false,
           });
         } catch (error) {

@@ -8,6 +8,7 @@ import { getCategories } from "@/apis/category";
 import { getBrands } from "@/apis/brand";
 import EmptyProductFilter from "@/components/empty/EmptyProductFilter";
 import FilterSection from "@/components/section/FilterSection";
+import { getSkinTypes } from "@/apis/skin-type";
 
 const Products = () => {
   const { data, isLoading } = useQuery({
@@ -22,6 +23,10 @@ const Products = () => {
     queryKey: ["get-brands"],
     queryFn: () => getBrands(),
   });
+  const { data: skins, isLoading: isLoadingSkins } = useQuery({
+    queryKey: ["get-skin-types"],
+    queryFn: () => getSkinTypes(),
+  });
 
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,12 +36,13 @@ const Products = () => {
   const [brandFilter, setBrandFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priceRangeFilter, setPriceRangeFilter] = useState("");
+  const [skinTypeFilter, setSkinTypeFilter] = useState("");
   const [appliedFilters, setAppliedFilters] = useState({
     brand: "",
     category: "",
     priceRange: "",
+    skinType: "",
   });
-
   const priceRanges = [
     { label: "Tất cả", value: "", range: [0, Infinity] },
     { label: "0 - 200,000", value: "0-200000", range: [0, 200000] },
@@ -44,7 +50,6 @@ const Products = () => {
     { label: "300,000 - 500,000", value: "300000-500000", range: [300000, 500000] },
     { label: "> 500,000", value: "500000+", range: [500000, Infinity] },
   ];
-
   const filteredProducts = (data ?? [])
     .filter(product => {
       const selectedRange = priceRanges.find(range => range.value === appliedFilters.priceRange);
@@ -53,9 +58,10 @@ const Products = () => {
       return (
         (!appliedFilters.brand || product.brand.name === appliedFilters.brand) &&
         (!appliedFilters.category || product.category.name === appliedFilters.category) &&
+        (!appliedFilters.skinType || product.suitableFor.includes(appliedFilters.skinType)) &&
         product.price >= minPrice &&
         product.price <= maxPrice &&
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) // Search by name
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     })
     .sort((a, b) => {
@@ -76,6 +82,7 @@ const Products = () => {
       brand: brandFilter,
       category: categoryFilter,
       priceRange: priceRangeFilter,
+      skinType: skinTypeFilter,
     });
     setPage(1);
   };
@@ -89,6 +96,7 @@ const Products = () => {
       brand: "",
       category: "",
       priceRange: "",
+      skinType: "",
     });
     setPage(1);
   };
@@ -109,18 +117,22 @@ const Products = () => {
             />
           </Box>
           {/* Filter Section */}
-          <Box flex={1.5}>
+          <Box flex={2.5}>
             <FilterSection
               isLoadingBrands={isLoadingBrands}
               isLoadingCategories={isLoadingCategories}
+              isLoadingSkins={isLoadingSkins}
               brands={brands}
               categories={categories}
+              skins={skins}
               brandFilter={brandFilter}
               setBrandFilter={setBrandFilter}
               categoryFilter={categoryFilter}
               setCategoryFilter={setCategoryFilter}
               priceRangeFilter={priceRangeFilter}
               setPriceRangeFilter={setPriceRangeFilter}
+              skinTypeFilter={skinTypeFilter}
+              setSkinTypeFilter={setSkinTypeFilter}
               priceRanges={priceRanges}
               applyFilters={applyFilters}
               clearFilters={clearFilters}

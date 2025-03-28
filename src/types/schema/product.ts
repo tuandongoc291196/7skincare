@@ -14,6 +14,7 @@ export interface Product {
   category: Category;
   brand: Brand;
   createdBy: string;
+  suitableFor: string;
 }
 
 export interface ProductCreate {
@@ -25,6 +26,7 @@ export interface ProductCreate {
   name: string;
   price: number;
   quantity: number;
+  skinTypeId: number[];
 }
 
 export interface ProductUpdate {
@@ -36,4 +38,5 @@ export interface ProductUpdate {
   name: string;
   price: number;
   quantity: number;
+  skinTypeId: number[];
 }

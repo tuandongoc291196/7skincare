@@ -14,9 +14,15 @@ const getProducts = async (): Promise<Product[]> => {
   });
   return response.data.data;
 };
+
 const updateProduct = async (data: ProductUpdate) => {
   const response = await apiClient.put(BASE_PATH + "/update", data);
   return response.data;
 };
 
-export { createProduct, getProducts, updateProduct };
+const getProductById = async (id: number) => {
+  const response = await apiClient.get(BASE_PATH + `/?id=${id}`);
+  return response.data.data;
+};
+
+export { createProduct, getProducts, updateProduct, getProductById };

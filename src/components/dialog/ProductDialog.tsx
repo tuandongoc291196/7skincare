@@ -21,6 +21,7 @@ import ProductEditForm from "./product/ProductEditForm";
 import { Category } from "@/types/schema/category";
 import { Brand } from "@/types/schema/brand";
 import { useAlert } from "@/hooks/useAlert";
+import { SkinType } from "@/types/schema/skin-type";
 
 interface ProductDialogProps {
   open: boolean;
@@ -28,23 +29,29 @@ interface ProductDialogProps {
   product: Product | null;
   categories: Category[];
   brands: Brand[];
+  skins: SkinType[];
   isLoadingCategories: boolean;
   isLoadingBrands: boolean;
+  isLoadingSkins: boolean;
 }
+
 const ProductDialog: React.FC<ProductDialogProps> = ({
   open,
   onClose,
   product,
   brands,
   categories,
+  skins,
   isLoadingBrands,
   isLoadingCategories,
+  isLoadingSkins,
 }) => {
   const { showAlert } = useAlert();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [updatedProduct, setUpdatedProduct] = useState<ProductUpdate | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({}); // Added for validation
 
   const updateProductMutation = useMutation({
     mutationKey: ["update-product"],
@@ -53,28 +60,50 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
       showAlert("Cập nhật sản phẩm thành công", "success");
       await queryClient.invalidateQueries({ queryKey: ["get-products"] });
       setIsEditing(false);
+      setErrors({});
     },
     onError: () => {
       showAlert("Cập nhật sản phẩm thất bại", "error");
     },
   });
 
+  const getSkinIdsFromSuitableFor = (
+    suitableFor: string,
+    skins: { id: number; type: string }[]
+  ): number[] => {
+    if (typeof suitableFor !== "string") return [];
+    return suitableFor
+      .replace(/,\s*$/, "")
+      .split(", ")
+      .map(type => {
+        const skin = skins.find(s => s.type === type.trim());
+        return skin ? skin.id : null;
+      })
+      .filter((id): id is number => id !== null);
+  };
+
   useEffect(() => {
-    setUpdatedProduct({
-      brandId: product?.brand.id as number,
-      categoryId: product?.category.id as number,
-      description: product?.description as string,
-      id: product?.id as number,
-      image: product?.image as string,
-      name: product?.name as string,
-      price: product?.price as number,
-      quantity: product?.quantity as number,
-    });
+    if (product) {
+      setUpdatedProduct({
+        brandId: product.brand?.id as number,
+        categoryId: product.category?.id as number,
+        description: product.description || "",
+        id: product.id as number,
+        image: product.image || "",
+        name: product.name || "",
+        price: product.price || 0,
+        quantity: product.quantity || 0,
+        skinTypeId: getSkinIdsFromSuitableFor(product.suitableFor || "", skins),
+      });
+    }
   }, [product, isEditing]);
 
-  const handleChange = (event: { target: { name: string; value: string | number } }) => {
+  const handleChange = (event: { target: { name: string; value: string | number | number[] } }) => {
     if (updatedProduct) {
       setUpdatedProduct({ ...updatedProduct, [event.target.name]: event.target.value });
+      if (errors[event.target.name]) {
+        setErrors({ ...errors, [event.target.name]: "" });
+      }
     }
   };
 
@@ -90,17 +119,26 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     }
   };
 
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!updatedProduct?.name) newErrors.name = "Tên sản phẩm không được để trống";
+    if (!updatedProduct?.brandId) newErrors.brandId = "Vui lòng chọn thương hiệu";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
-    if (updatedProduct) {
-      if (selectedFile) {
-        const storageRef = ref(storage, `images/${selectedFile.name}`);
-        const snapshot = await uploadBytes(storageRef, selectedFile);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        if (downloadURL) updateProductMutation.mutate({ ...updatedProduct, image: downloadURL });
-      } else {
-        updateProductMutation.mutate(updatedProduct);
+    if (validateFields())
+      if (updatedProduct) {
+        if (selectedFile) {
+          const storageRef = ref(storage, `images/${selectedFile.name}`);
+          const snapshot = await uploadBytes(storageRef, selectedFile);
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          if (downloadURL) updateProductMutation.mutate({ ...updatedProduct, image: downloadURL });
+        } else {
+          updateProductMutation.mutate(updatedProduct);
+        }
       }
-    }
   };
 
   if (!updatedProduct || !product) return null;
@@ -128,9 +166,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
               updatedProduct={updatedProduct}
               categories={categories}
               brands={brands}
+              skins={skins}
+              isLoadingSkins={isLoadingSkins}
               isLoadingCategories={isLoadingCategories}
               isLoadingBrands={isLoadingBrands}
               onChange={handleChange}
+              errors={errors}
             />
           ) : (
             <ProductDetailsView product={product} />
@@ -142,11 +183,16 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           Đóng
         </Button>
         {isEditing && (
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={updateProductMutation.isPending}
+          >
             Lưu
           </Button>
         )}
-      </DialogActions>{" "}
+      </DialogActions>
     </Dialog>
   );
 };

@@ -25,23 +25,29 @@ import { Brand } from "@/types/schema/brand";
 import { Image } from "@mui/icons-material";
 import { useAlert } from "@/hooks/useAlert";
 import useAuthStore from "@/hooks/useAuth";
+import { SkinType } from "@/types/schema/skin-type";
+import { skinTypeMap } from "@/constants/skinTypes";
 
 interface AddProductDialogProps {
   open: boolean;
   handleClose: () => void;
   categories: Category[];
   brands: Brand[];
+  skins: SkinType[];
   isLoadingCategories: boolean;
   isLoadingBrands: boolean;
+  isLoadingSkins: boolean;
 }
 
 const AddProductDialog: React.FC<AddProductDialogProps> = ({
   open,
   handleClose,
   brands,
+  skins,
   categories,
   isLoadingBrands,
   isLoadingCategories,
+  isLoadingSkins,
 }) => {
   const { showAlert } = useAlert();
   const queryClient = useQueryClient();
@@ -56,6 +62,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     name: "",
     price: 0,
     quantity: 0,
+    skinTypeId: [],
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -78,6 +85,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
         name: "",
         price: 0,
         quantity: 0,
+        skinTypeId: [],
       });
       setSelectedFile(null);
       setErrors({});
@@ -117,9 +125,11 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     if (newProduct.categoryId === 0) newErrors.categoryId = "Vui lòng chọn danh mục";
     if (newProduct.brandId === 0) newErrors.brandId = "Vui lòng chọn thương hiệu";
     if (!newProduct.image) newErrors.image = "Vui lòng chọn hình ảnh";
+    if (newProduct.skinTypeId.length === 0)
+      newErrors.skinTypeId = "Vui lòng chọn ít nhất một loại da";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleCreate = async () => {
@@ -192,7 +202,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
             )}
           </Grid>
           <Grid item xs={12} sm={7}>
-            {isLoadingBrands || isLoadingCategories ? (
+            {isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
               <Box
                 display="flex"
                 justifyContent="center"
@@ -203,6 +213,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
             ) : (
               <>
                 <TextField
+                  size="small"
                   fullWidth
                   label="Tên sản phẩm"
                   name="name"
@@ -213,6 +224,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   helperText={errors.name}
                 />
                 <TextField
+                  size="small"
                   fullWidth
                   label="Mô tả"
                   name="description"
@@ -224,6 +236,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   maxRows={3}
                 />
                 <TextField
+                  size="small"
                   fullWidth
                   label="Giá (VNĐ)"
                   name="price"
@@ -242,6 +255,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   helperText={errors.price}
                 />
                 <TextField
+                  size="small"
                   fullWidth
                   label="Số lượng"
                   name="quantity"
@@ -259,7 +273,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   error={!!errors.quantity}
                   helperText={errors.quantity}
                 />
-                <FormControl fullWidth margin="dense" error={!!errors.categoryId}>
+                <FormControl size="small" fullWidth margin="dense" error={!!errors.categoryId}>
                   <InputLabel>Danh mục</InputLabel>
                   <Select name="categoryId" value={newProduct.categoryId} onChange={handleChange}>
                     <MenuItem value={0} disabled>
@@ -277,7 +291,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                     </Typography>
                   )}
                 </FormControl>
-                <FormControl fullWidth margin="dense" error={!!errors.brandId}>
+                <FormControl size="small" fullWidth margin="dense" error={!!errors.brandId}>
                   <InputLabel>Thương hiệu</InputLabel>
                   <Select name="brandId" value={newProduct.brandId} onChange={handleChange}>
                     <MenuItem value={0} disabled>
@@ -292,6 +306,36 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   {errors.brandId && (
                     <Typography color="error" variant="caption">
                       {errors.brandId}
+                    </Typography>
+                  )}
+                </FormControl>
+                <FormControl size="small" fullWidth margin="dense" error={!!errors.skinTypeId}>
+                  <InputLabel>Chọn loại da</InputLabel>
+                  <Select
+                    multiple
+                    name="skinTypeId"
+                    value={newProduct.skinTypeId}
+                    onChange={event => {
+                      const value = event.target.value as number[];
+                      setNewProduct({ ...newProduct, skinTypeId: value });
+                      if (errors.skinTypeId) setErrors({ ...errors, skinTypeId: "" });
+                    }}
+                    renderValue={selected =>
+                      skins
+                        .filter(skin => selected.includes(skin.id))
+                        .map(skin => skinTypeMap[skin.type] || skin.type)
+                        .join(", ")
+                    }
+                  >
+                    {skins.map(skin => (
+                      <MenuItem key={skin.id} value={skin.id}>
+                        {skinTypeMap[skin.type] || skin.type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.skinTypeId && (
+                    <Typography color="error" variant="caption">
+                      {errors.skinTypeId}
                     </Typography>
                   )}
                 </FormControl>

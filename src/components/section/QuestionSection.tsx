@@ -62,7 +62,7 @@ const QuestionSection: React.FC<QuestionSectionProps> = ({
         </FormControl>
       </Box>
       {!isLastQuestion ? (
-        <Button variant="contained" sx={{ mt: 2 }} onClick={onNext}>
+        <Button variant="contained" sx={{ mt: 2 }} onClick={onNext} disabled={!selectedAnswer}>
           TỚI CÂU TIẾP THEO
         </Button>
       ) : (

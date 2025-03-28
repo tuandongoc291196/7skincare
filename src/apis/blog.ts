@@ -19,4 +19,8 @@ const deleteBlog = async (id: number) => {
   const response = await apiClient.delete(BASE_PATH + "/delete/", { params: { id: id } });
   return response.data;
 };
-export { createBlog, getBlogs, updateBlog, deleteBlog };
+const getBlogById = async (id: number) => {
+  const response = await apiClient.get(BASE_PATH + `/?id=${id}`);
+  return response.data.data;
+};
+export { createBlog, getBlogs, updateBlog, deleteBlog, getBlogById };

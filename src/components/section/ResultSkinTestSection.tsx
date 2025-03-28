@@ -1,21 +1,16 @@
 import { SkinTestResult } from "@/types/schema/skin-test";
-import { Container, Typography, Card, CardContent, Avatar } from "@mui/material";
+import { Container, Typography, Card, CardContent, Avatar, Grid, Divider } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { skinTypeMap } from "@/constants/skinTypes";
+import ProductCard from "../card/ProductCard";
 
 interface ResultSkinTestSectionProps {
   result: SkinTestResult;
 }
 
 const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result }) => {
-  const skinTypeMap: Record<string, string> = {
-    OILY: "Da dầu",
-    DRY: "Da khô",
-    COMBINATION: "Da hỗn hợp",
-    SENSITIVE: "Da nhạy cảm",
-  };
-
   return (
-    <Container maxWidth="sm" sx={{ my: 8 }}>
+    <Container>
       <Card
         sx={{
           boxShadow: 3,
@@ -43,15 +38,35 @@ const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result })
           <Typography
             variant="h6"
             sx={{
-              color: "primary.main",
+              color: "red",
               fontWeight: "bold",
               mt: 1,
+            }}
+          >
+            Tổng điểm: {result.totalPoint}
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "primary.main",
+              fontWeight: "bold",
             }}
           >
             Kết quả: {skinTypeMap[result.skinType.type] || "Không xác định"}
           </Typography>
         </CardContent>
       </Card>
+      <Typography variant="h5" fontWeight={600} mt={4} mb={2}>
+        Các sản phẩm liên quan
+      </Typography>
+      <Divider />
+      <Grid container spacing={4} mt={1}>
+        {result.suitableProducts.map((product, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <ProductCard product={product} />
+          </Grid>
+        ))}
+      </Grid>
     </Container>
   );
 };

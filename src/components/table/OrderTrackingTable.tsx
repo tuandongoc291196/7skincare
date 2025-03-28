@@ -20,6 +20,7 @@ import { cancelOrder, paymentOrder } from "@/apis/order";
 import { useAlert } from "@/hooks/useAlert";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import RejectReasonDialog from "../dialog/RejectReasonDialog";
 
 interface OrderTrackingTableProps {
   orders: Order[];
@@ -35,6 +36,9 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [open, setOpen] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [id, setId] = useState<number>();
+  const [reason, setReason] = useState("");
+  const [openRejectReason, setOpenRejectReason] = useState(false);
   const payOrderMutation = useMutation({
     mutationKey: ["pay-order"],
     mutationFn: (id: number) => paymentOrder(id),
@@ -51,8 +55,12 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
 
   const cancelOrderMutation = useMutation({
     mutationKey: ["cancel-order"],
-    mutationFn: (id: number) => cancelOrder(id),
-    onSuccess: async () => {
+    mutationFn: (data: { id: number; reason: string }) => cancelOrder(data.id, data.reason),
+    onSuccess: async data => {
+      setId(undefined);
+      setOpenRejectReason(false);
+      setReason("");
+      navigate(`/theo-doi-don-hang?id=${data.data.id}`);
       showAlert("Hủy đơn hàng thành công", "success");
       await queryClient.invalidateQueries({ queryKey: ["get-orders-by-account-id"] });
     },
@@ -84,11 +92,13 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
   const handlePayment = (id: number) => {
     payOrderMutation.mutate(id);
   };
-  const handleCancelOrder = (id: number) => {
-    cancelOrderMutation.mutate(id);
+  const handleCancelOrder = (id: number, reason: string) => {
+    cancelOrderMutation.mutate({ id, reason });
   };
   const paginated = orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  const hasPendingOrders = orders.some(order => order.status === OrderStatuses.PENDING);
+  const hasPendingOrders = orders.some(
+    order => order.status === OrderStatuses.PENDING || order.status === OrderStatuses.APPROVED
+  );
 
   return (
     <>
@@ -117,16 +127,26 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
                     label={
                       order.status === OrderStatuses.PENDING
                         ? "Đang xử lí"
-                        : order.status === OrderStatuses.SUCCESS
-                          ? "Hoàn Thành"
-                          : "Thất bại"
+                        : order.status === OrderStatuses.APPROVED
+                          ? "Chờ thanh toán"
+                          : order.status === OrderStatuses.SUCCESS
+                            ? "Đã thanh toán"
+                            : order.status === OrderStatuses.DONE
+                              ? "Giao hàng thành công"
+                              : order.status === OrderStatuses.REJECTED
+                                ? "Bị từ chối"
+                                : "Thất bại"
                     }
                     color={
                       order.status === OrderStatuses.PENDING
                         ? "warning"
-                        : order.status === OrderStatuses.SUCCESS
-                          ? "success"
-                          : "error"
+                        : order.status === OrderStatuses.APPROVED
+                          ? "primary"
+                          : order.status === OrderStatuses.SUCCESS
+                            ? "secondary"
+                            : order.status === OrderStatuses.DONE
+                              ? "success"
+                              : "error"
                     }
                   />
                 </TableCell>
@@ -135,21 +155,24 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
                     <Visibility />
                   </IconButton>
                 </TableCell>
-                {order.status === OrderStatuses.PENDING ? (
+                {order.status === OrderStatuses.APPROVED ||
+                order.status === OrderStatuses.PENDING ? (
                   <TableCell align="center">
-                    <Chip
-                      sx={{
-                        height: "24px",
-                        borderRadius: "4px",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        "&:hover": { opacity: 0.8 },
-                      }}
-                      variant="outlined"
-                      label={"Thanh toán"}
-                      color={"info"}
-                      onClick={() => handlePayment(order.id)}
-                    />
+                    {order.status === OrderStatuses.APPROVED && (
+                      <Chip
+                        sx={{
+                          height: "24px",
+                          borderRadius: "4px",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          "&:hover": { opacity: 0.8 },
+                        }}
+                        variant="outlined"
+                        label={"Thanh toán"}
+                        color={"info"}
+                        onClick={() => handlePayment(order.id)}
+                      />
+                    )}
 
                     <Chip
                       sx={{
@@ -163,7 +186,10 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
                       variant="outlined"
                       label={"Hủy"}
                       color={"error"}
-                      onClick={() => handleCancelOrder(order.id)}
+                      onClick={() => {
+                        setId(order.id);
+                        setOpenRejectReason(true);
+                      }}
                     />
                   </TableCell>
                 ) : (
@@ -184,6 +210,14 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       <OrderDialog open={open} onClose={handleCloseDialog} order={selectedOrder} />
+      <RejectReasonDialog
+        open={openRejectReason}
+        handleClose={() => setOpenRejectReason(false)}
+        setReason={setReason}
+        reason={reason}
+        onReject={handleCancelOrder}
+        orderId={id}
+      />
     </>
   );
 };

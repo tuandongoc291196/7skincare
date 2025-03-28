@@ -14,15 +14,43 @@ const getOrdersByAccountId = async (accountId: number): Promise<Order[]> => {
   return response.data.data;
 };
 const getAllOrders = async (): Promise<Order[]> => {
-  const response = await apiClient.get(BASE_PATH + "/getAll");
+  const response = await apiClient.get(BASE_PATH + "/getAll", {
+    params: { pageSize: 1000 },
+  });
   return response.data.data;
 };
 const paymentOrder = async (id: number) => {
   const response = await apiClient.post(`/payments/request?billId=${id}`);
   return response.data.data;
 };
-const cancelOrder = async (id: number) => {
-  const response = await apiClient.put(BASE_PATH + `/cancel/?id=${id}`);
+const cancelOrder = async (id: number, reason: string) => {
+  const response = await apiClient.put(BASE_PATH + `/cancel/?id=${id}&reason=${reason}`);
   return response.data;
 };
-export { createOrder, getOrdersByAccountId, getAllOrders, paymentOrder, cancelOrder };
+const approveOrder = async (id: number) => {
+  const response = await apiClient.put(BASE_PATH + `/approved/?id=${id}`);
+  return response.data;
+};
+const rejectOrder = async (id: number, reason: string) => {
+  const response = await apiClient.put(BASE_PATH + `/reject/?id=${id}&reason=${reason}`);
+  return response.data;
+};
+const doneOrder = async (id: number) => {
+  const response = await apiClient.put(BASE_PATH + `/done/?id=${id}`);
+  return response.data;
+};
+const getStatusHistory = async (id: number) => {
+  const response = await apiClient.get(`bill-history/?billId=${id}`);
+  return response.data.data;
+};
+export {
+  createOrder,
+  getOrdersByAccountId,
+  getAllOrders,
+  paymentOrder,
+  cancelOrder,
+  approveOrder,
+  rejectOrder,
+  doneOrder,
+  getStatusHistory,
+};

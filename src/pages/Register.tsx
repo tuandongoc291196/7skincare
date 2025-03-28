@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Box, TextField, Button, Typography, Snackbar } from "@mui/material";
-import Alert, { AlertColor } from "@mui/material/Alert";
+import { Box, TextField, Button, Typography } from "@mui/material";
 import useAuthStore from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { RegisterUserData } from "@/types/schema/user";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/validation";
 import { AxiosError } from "axios";
+import { useAlert } from "@/hooks/useAlert";
 
 const Register = () => {
   const navigate = useNavigate();
-
+  const { showAlert } = useAlert();
   // Consolidated form state
   const [formState, setFormState] = useState<RegisterUserData>({
     email: "",
@@ -18,11 +18,6 @@ const Register = () => {
     address: "",
     phoneNumber: "",
   });
-
-  // Snackbar state
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
 
   // Auth store
   const { registerUser, isLoading } = useAuthStore();
@@ -39,24 +34,14 @@ const Register = () => {
   const handleRegister = async () => {
     try {
       await registerUser(formState);
-      setSnackbarMessage("Đăng ký thành công!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
       setFormState({ email: "", password: "", name: "", address: "", phoneNumber: "" });
-      navigate("/");
+      showAlert("Đăng ký thành công ! Vui lòng đăng nhập", "success");
+      navigate("/dang-nhap");
     } catch (error) {
       if (error instanceof AxiosError) {
-        {
-          setSnackbarMessage(error.response?.data.message);
-          setSnackbarSeverity("error");
-          setOpenSnackbar(true);
-        }
+        showAlert("Đăng ký thất bại ! Hãy thử lại", "error");
       }
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   return (
@@ -175,18 +160,6 @@ const Register = () => {
           </Button>
         </Box>
       </Box>
-
-      {/* Snackbar for alerts */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

@@ -17,6 +17,8 @@ import { Product } from "@/types/schema/product";
 import ProductDialog from "../dialog/ProductDialog";
 import { Brand } from "@/types/schema/brand";
 import { Category } from "@/types/schema/category";
+import { skinTypeMap } from "@/constants/skinTypes";
+import { SkinType } from "@/types/schema/skin-type";
 
 interface ProductsTableProps {
   products: Product[];
@@ -24,8 +26,10 @@ interface ProductsTableProps {
   setPage: (page: number) => void;
   categories: Category[];
   brands: Brand[];
+  skins: SkinType[];
   isLoadingCategories: boolean;
   isLoadingBrands: boolean;
+  isLoadingSkins: boolean;
 }
 
 const ProductsTable: React.FC<ProductsTableProps> = ({
@@ -34,8 +38,10 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
   setPage,
   brands,
   categories,
+  skins,
   isLoadingBrands,
   isLoadingCategories,
+  isLoadingSkins,
 }) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [open, setOpen] = useState<boolean>(false);
@@ -76,6 +82,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
               <TableCell align="center">Ngày tạo</TableCell>
               <TableCell align="center">Danh mục</TableCell>
               <TableCell align="center">Thương hiệu</TableCell>
+              <TableCell align="center">Loại da</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
               <TableCell align="center">Chi tiết</TableCell>
             </TableRow>
@@ -101,6 +108,15 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                 </TableCell>
                 <TableCell align="center">{product.category.name}</TableCell>
                 <TableCell align="center">{product.brand.name}</TableCell>
+                <TableCell align="center">
+                  {typeof product.suitableFor === "string"
+                    ? product.suitableFor
+                        .replace(/,\s*$/, "")
+                        .split(", ")
+                        .map(type => skinTypeMap[type.trim()] || type)
+                        .join(", ")
+                    : product.suitableFor || ""}
+                </TableCell>
                 <TableCell align="center">
                   <Chip
                     label={product.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}
@@ -134,6 +150,8 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
         isLoadingCategories={isLoadingCategories}
         brands={brands}
         isLoadingBrands={isLoadingBrands}
+        skins={skins}
+        isLoadingSkins={isLoadingSkins}
       />
     </>
   );

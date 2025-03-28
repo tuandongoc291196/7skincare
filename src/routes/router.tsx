@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import PublicRouter from "./publicRouter";
 import { publicRoutes } from "./config/publicRoutes";
 import GuestLayout from "../layout/Layout";
@@ -11,6 +11,7 @@ import Profile from "@/pages/Profile";
 function AppRouter() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/trang-chu" />} />
       <Route element={<PublicRouter />}>
         <Route element={<Layout />}>
           {publicRoutes.map(route => (

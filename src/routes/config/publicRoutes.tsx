@@ -1,9 +1,11 @@
 import About from "@/pages/About";
 import Blog from "@/pages/Blog";
+import BlogDetail from "@/pages/BlogDetail";
 import Cart from "@/pages/Cart";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import OrderTracking from "@/pages/OrderTracking";
+import ProductDetail from "@/pages/ProductDetail";
 import Products from "@/pages/Products";
 import Register from "@/pages/Register";
 import SkinTest from "@/pages/SkinTest";
@@ -11,7 +13,7 @@ import { Route } from "@/types/common";
 
 export const publicRoutes: Route[] = [
   {
-    path: "/",
+    path: "/trang-chu",
     component: <Home />,
     name: "Trang chủ",
     hidden: false,
@@ -35,10 +37,22 @@ export const publicRoutes: Route[] = [
     hidden: false,
   },
   {
+    path: "/san-pham/:id",
+    component: <ProductDetail />,
+    name: "Chi tiết sản phẩm",
+    hidden: true,
+  },
+  {
     path: "/blog",
     component: <Blog />,
     name: "Blog",
     hidden: false,
+  },
+  {
+    path: "/blog/:id",
+    component: <BlogDetail />,
+    name: "Chi tiết Blog",
+    hidden: true,
   },
   {
     path: "/dang-nhap",

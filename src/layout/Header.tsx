@@ -94,8 +94,10 @@ const Header = () => {
                   color="inherit"
                   href={route.path}
                   sx={{
-                    color: location.pathname === route.path ? "var(--primary-color)" : "inherit",
-                    fontWeight: location.pathname === route.path ? "bold" : "normal",
+                    color: location.pathname.startsWith(route.path)
+                      ? "var(--primary-color)"
+                      : "inherit",
+                    fontWeight: location.pathname.startsWith(route.path) ? "bold" : "normal",
                     "&:hover": { color: "var(--primary-color)" },
                   }}
                 >

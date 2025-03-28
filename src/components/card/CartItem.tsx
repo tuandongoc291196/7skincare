@@ -9,6 +9,7 @@ const CartItemStyled = styled(Box)(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(2),
   borderBottom: `1px solid #0000001f`,
+  gap: 10,
 }));
 
 const QuantityControl = styled(Box)(({ theme }) => ({
@@ -34,7 +35,7 @@ interface CartItemProps {
 const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
   return (
     <CartItemStyled>
-      <Box sx={{ display: "flex", alignItems: "center", width: "60%" }}>
+      <Box sx={{ display: "flex", alignItems: "center", width: "50%" }}>
         <img
           src={item.image}
           alt={item.name}
@@ -43,7 +44,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
         <Box sx={{ ml: 2 }}>
           <Typography variant="body1">{item.name}</Typography>
           <Typography variant="body2" color="textSecondary">
-            {item.price.toLocaleString()}₫
+            Đơn giá: {item.price.toLocaleString()}₫
           </Typography>
         </Box>
       </Box>
@@ -52,7 +53,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          width: "40%",
+          width: "50%",
         }}
       >
         <QuantityControl>

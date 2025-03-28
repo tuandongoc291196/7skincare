@@ -58,30 +58,45 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
             </Grid>
             <Grid item xs={6}>
               <Typography variant="body1">
-                <strong>Tổng giá:</strong> {order.totalPrice.toLocaleString()} VNĐ
+                <strong>Phí vận chuyển:</strong> 25,000 VNĐ
               </Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="body1">
+                <strong>Tổng cộng:</strong> {order.totalPrice.toLocaleString()} VNĐ
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Box>
                 <strong>Trạng thái:</strong>{" "}
                 <Chip
                   size="small"
                   label={
                     order.status === OrderStatuses.PENDING
                       ? "Chờ xử lý"
-                      : order.status === OrderStatuses.SUCCESS
-                        ? "Hoàn thành"
-                        : "Thất bại"
+                      : order.status === OrderStatuses.APPROVED
+                        ? "Chờ thanh toán"
+                        : order.status === OrderStatuses.SUCCESS
+                          ? "Đã thanh toán"
+                          : order.status === OrderStatuses.DONE
+                            ? "Giao hàng thành công"
+                            : order.status === OrderStatuses.REJECTED
+                              ? "Bị từ chối"
+                              : "Thất bại"
                   }
                   color={
                     order.status === OrderStatuses.PENDING
                       ? "warning"
-                      : order.status === OrderStatuses.SUCCESS
-                        ? "success"
-                        : "error"
+                      : order.status === OrderStatuses.APPROVED
+                        ? "primary"
+                        : order.status === OrderStatuses.SUCCESS
+                          ? "secondary"
+                          : order.status === OrderStatuses.DONE
+                            ? "success"
+                            : "error"
                   }
                 />
-              </Typography>
+              </Box>
             </Grid>
           </Grid>
 

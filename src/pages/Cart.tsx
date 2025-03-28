@@ -17,6 +17,21 @@ const Cart = () => {
       ) : (
         <Grid container spacing={2}>
           <Grid item xs={12} md={8}>
+            <Box display="flex" paddingX={"16px"} bgcolor={"gray"} color={"white"} p={1}>
+              <Box sx={{ width: "50%" }}>
+                <Typography ml={1}>Sản phẩm</Typography>
+              </Box>
+              <Box sx={{ width: "48%", display: "flex" }}>
+                <Box width={"50%"}>
+                  <Typography ml={4}>Số lượng</Typography>
+                </Box>
+                <Box>
+                  <Typography>Tổng tiền</Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box></Box>
             {items.map(item => (
               <CartItem
                 key={item.id}

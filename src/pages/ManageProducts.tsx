@@ -8,6 +8,7 @@ import { getCategories } from "@/apis/category";
 import { getBrands } from "@/apis/brand";
 import AddProductDialog from "@/components/dialog/AddProductDialog";
 import FilterSection from "@/components/section/FilterSection";
+import { getSkinTypes } from "@/apis/skin-type";
 
 const ManageProducts = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -26,14 +27,20 @@ const ManageProducts = () => {
     queryKey: ["get-brands"],
     queryFn: () => getBrands(),
   });
+  const { data: skins, isLoading: isLoadingSkins } = useQuery({
+    queryKey: ["get-skin-types"],
+    queryFn: () => getSkinTypes(),
+  });
   // Filter states
   const [brandFilter, setBrandFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priceRangeFilter, setPriceRangeFilter] = useState("");
+  const [skinTypeFilter, setSkinTypeFilter] = useState("");
   const [appliedFilters, setAppliedFilters] = useState({
     brand: "",
     category: "",
     priceRange: "",
+    skinType: "",
   });
 
   const priceRanges = [
@@ -52,9 +59,10 @@ const ManageProducts = () => {
       return (
         (!appliedFilters.brand || product.brand.name === appliedFilters.brand) &&
         (!appliedFilters.category || product.category.name === appliedFilters.category) &&
+        (!appliedFilters.skinType || product.suitableFor.includes(appliedFilters.skinType)) &&
         product.price >= minPrice &&
         product.price <= maxPrice &&
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) // Search by name
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     })
     .sort((a, b) => {
@@ -81,6 +89,7 @@ const ManageProducts = () => {
       brand: brandFilter,
       category: categoryFilter,
       priceRange: priceRangeFilter,
+      skinType: skinTypeFilter,
     });
     setPage(0);
   };
@@ -94,6 +103,7 @@ const ManageProducts = () => {
       brand: "",
       category: "",
       priceRange: "",
+      skinType: "",
     });
     setPage(1);
   };
@@ -118,22 +128,27 @@ const ManageProducts = () => {
       <FilterSection
         isLoadingBrands={isLoadingBrands}
         isLoadingCategories={isLoadingCategories}
+        isLoadingSkins={isLoadingSkins}
         brands={brands}
         categories={categories}
+        skins={skins}
         brandFilter={brandFilter}
         setBrandFilter={setBrandFilter}
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
         priceRangeFilter={priceRangeFilter}
         setPriceRangeFilter={setPriceRangeFilter}
+        skinTypeFilter={skinTypeFilter}
+        setSkinTypeFilter={setSkinTypeFilter}
         priceRanges={priceRanges}
         applyFilters={applyFilters}
         clearFilters={clearFilters}
       />
-      {isLoadingProducts || isLoadingBrands || isLoadingCategories ? (
+      {isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
         <LoadingSection />
       ) : (
         categories &&
+        skins &&
         brands && (
           <ProductsTable
             products={filteredProducts ?? []}
@@ -143,19 +158,26 @@ const ManageProducts = () => {
             isLoadingCategories={isLoadingCategories}
             brands={brands}
             isLoadingBrands={isLoadingBrands}
+            skins={skins}
+            isLoadingSkins={isLoadingSkins}
           />
         )
       )}
-      {!(isLoadingProducts || isLoadingBrands || isLoadingCategories) && categories && brands && (
-        <AddProductDialog
-          handleClose={handleClose}
-          open={open}
-          categories={categories}
-          isLoadingCategories={isLoadingCategories}
-          brands={brands}
-          isLoadingBrands={isLoadingBrands}
-        />
-      )}
+      {!(isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkins) &&
+        categories &&
+        brands &&
+        skins && (
+          <AddProductDialog
+            handleClose={handleClose}
+            open={open}
+            categories={categories}
+            isLoadingCategories={isLoadingCategories}
+            brands={brands}
+            isLoadingBrands={isLoadingBrands}
+            skins={skins}
+            isLoadingSkins={isLoadingSkins}
+          />
+        )}
     </Container>
   );
 };

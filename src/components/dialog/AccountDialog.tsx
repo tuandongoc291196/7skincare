@@ -21,7 +21,7 @@ interface AccountDetailDialogProps {
   open: boolean;
   account: Account | null;
   onClose: () => void;
-  onToggleStatus: () => void;
+  onToggleStatus: (id: number) => void;
 }
 
 const AccountDialog: React.FC<AccountDetailDialogProps> = ({
@@ -113,7 +113,7 @@ const AccountDialog: React.FC<AccountDetailDialogProps> = ({
           <Grid item xs={6}></Grid>
           <Grid item xs={6}>
             <Button
-              onClick={onToggleStatus}
+              onClick={() => onToggleStatus(account.id)}
               color={account.status === Statuses.ACTIVATED ? "error" : "success"}
               variant="contained"
               size="small"

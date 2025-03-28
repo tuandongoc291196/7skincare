@@ -24,6 +24,10 @@ import { Roles, Statuses } from "@/constants/status";
 import { Account } from "@/types/schema/user";
 import { Visibility } from "@mui/icons-material";
 import AccountDialog from "../dialog/AccountDialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { activateAccount, deleteAccount } from "@/apis/account";
+import { useAlert } from "@/hooks/useAlert";
+import { AxiosError } from "axios";
 
 interface AccountsTableProps {
   accounts: Account[];
@@ -40,12 +44,43 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
   searchQuery,
   setSearchQuery,
 }) => {
+  const queryClient = useQueryClient();
+  const { showAlert } = useAlert();
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const disableAccountMutation = useMutation({
+    mutationKey: ["disable-account"],
+    mutationFn: (id: number) => deleteAccount(id),
+    onSuccess: async () => {
+      showAlert("Vô hiệu hóa tài khoản thành công", "success");
+      await queryClient.invalidateQueries({ queryKey: ["get-accounts"] });
+      handleCloseDialog();
+    },
+    onError: (error: AxiosError) => {
+      if (error?.status === 403) {
+        showAlert("Vui lòng đăng nhập để tiếp tục", "error");
+      } else showAlert("Vô hiệu hóa tài khoản thất bại", "error");
+    },
+  });
+  const activateAccountMutation = useMutation({
+    mutationKey: ["activate-account"],
+    mutationFn: (id: number) => activateAccount(id),
+    onSuccess: async () => {
+      showAlert("Kích hoạt tài khoản thành công", "success");
+      await queryClient.invalidateQueries({ queryKey: ["get-accounts"] });
+      handleCloseDialog();
+    },
+    onError: (error: AxiosError) => {
+      if (error?.status === 403) {
+        showAlert("Vui lòng đăng nhập để tiếp tục", "error");
+      } else showAlert("Kích hoạt tài khoản thất bại", "error");
+    },
+  });
+
   // Debounce search input to avoid excessive filtering
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -90,11 +125,13 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
   };
 
   // Handle Activation/Deactivation
-  const handleToggleStatus = () => {
+  const handleToggleStatus = (id: number) => {
     if (selectedAccount) {
-      const updatedStatus =
-        selectedAccount.status === Statuses.ACTIVATED ? Statuses.DISABLED : Statuses.ACTIVATED;
-      setSelectedAccount({ ...selectedAccount, status: updatedStatus });
+      if (selectedAccount.status === Statuses.ACTIVATED) {
+        disableAccountMutation.mutate(id);
+      } else {
+        activateAccountMutation.mutate(id);
+      }
     }
   };
 

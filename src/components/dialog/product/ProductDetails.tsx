@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, Divider, Grid } from "@mui/material";
 import { Product } from "@/types/schema/product";
 import { Statuses } from "@/constants/status";
+import { skinTypeMap } from "@/constants/skinTypes";
 
 interface ProductDetailsViewProps {
   product: Product;
@@ -30,6 +31,9 @@ const ProductDetailsView: React.FC<ProductDetailsViewProps> = ({ product }) => (
           <Typography variant="body2" fontWeight={500}>
             Danh mục:
           </Typography>
+          <Typography variant="body2" fontWeight={500}>
+            Loại da:
+          </Typography>
         </Box>
         <Box flex={1}>
           <Typography variant="body2">{product.id}</Typography>
@@ -38,6 +42,15 @@ const ProductDetailsView: React.FC<ProductDetailsViewProps> = ({ product }) => (
           </Typography>
           <Typography variant="body2">{product.quantity}</Typography>
           <Typography variant="body2">{product.category.name}</Typography>
+          <Typography variant="body2">
+            {typeof product.suitableFor === "string"
+              ? product.suitableFor
+                  .replace(/,\s*$/, "")
+                  .split(", ")
+                  .map(type => skinTypeMap[type.trim()] || type)
+                  .join(", ")
+              : product.suitableFor || ""}
+          </Typography>
         </Box>
       </Box>
       <Box flex={1} display="flex" justifyContent="space-between">
