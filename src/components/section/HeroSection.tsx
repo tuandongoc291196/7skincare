@@ -26,22 +26,6 @@ const HeroSection = () => {
             >
               PHÂN TÍCH DA
             </Button>
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "white",
-                border: theme => `solid 1px ${theme.palette.primary.main}`,
-                color: theme => theme.palette.primary.main,
-              }}
-              fullWidth
-            >
-              ĐẶT LỊCH HẸN TƯ VẤN
-            </Button>
-          </Box>
-          <Box mt={2}>
-            <Button variant="outlined" color="primary" fullWidth>
-              CÁC TRƯỜNG HỢP ĐÃ ĐƯỢC ĐIỀU TRỊ
-            </Button>
           </Box>
         </Grid>
         <Grid item xs={12} md={6}>
