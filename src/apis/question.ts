@@ -8,7 +8,7 @@ const createQuestion = async (data: QuestionCreate) => {
   return response.data;
 };
 const getQuestions = async (): Promise<Question[]> => {
-  const response = await apiClient.get(BASE_PATH + "/getAll");
+  const response = await apiClient.get(BASE_PATH + "/getAll", { params: { pageSize: 1000 } });
   return response.data.data;
 };
 const updateQuestion = async (data: QuestionUpdate) => {

@@ -11,7 +11,7 @@ export default function PublicRouter() {
       return <Navigate to="/quan-ly-don-hang" />;
     }
     if (user?.roleName === Roles.ADMIN) {
-      return <Navigate to="/quan-ly-tai-khoan" />;
+      return <Navigate to="/bao-cao" />;
     }
   }
 
