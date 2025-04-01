@@ -6,9 +6,10 @@ import ProductCard from "../card/ProductCard";
 
 interface ResultSkinTestSectionProps {
   result: SkinTestResult;
+  totalPoint: number;
 }
 
-const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result }) => {
+const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result, totalPoint }) => {
   return (
     <Container>
       <Card
@@ -43,7 +44,7 @@ const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result })
               mt: 1,
             }}
           >
-            Tổng điểm: {result.totalPoint}
+            Tổng điểm: {result.totalPoint} / {totalPoint}
           </Typography>
           <Typography
             variant="h6"

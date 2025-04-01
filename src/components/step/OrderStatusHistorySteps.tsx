@@ -18,7 +18,7 @@ const OrderStatusHistorySteps = ({ steps }: OrderStatusHistoryStepsProps) => {
         };
       case OrderStatuses.APPROVED:
         return {
-          label: "Đã chấp nhận",
+          label: "Đã phê duyệt",
           color: "info",
           icon: <CheckCircleOutline fontSize="small" />,
         };

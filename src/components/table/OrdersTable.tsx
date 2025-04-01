@@ -186,7 +186,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
                       order.status === OrderStatuses.PENDING
                         ? "Chờ xử lý"
                         : order.status === OrderStatuses.APPROVED
-                          ? "Chờ thanh toán"
+                          ? "Đã phê duyệt"
                           : order.status === OrderStatuses.SUCCESS
                             ? "Đã thanh toán"
                             : order.status === OrderStatuses.DONE

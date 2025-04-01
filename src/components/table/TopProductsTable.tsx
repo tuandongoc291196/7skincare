@@ -13,8 +13,8 @@ import {
 } from "@mui/material";
 
 export const TopProductsTable = ({ products }: { products: ReportOrders[] | undefined }) => (
-  <Grid item xs={12}>
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+  <Grid item xs={12} height={"100%"}>
+    <Paper elevation={3} sx={{ p: 3, borderRadius: 2, height: "100%" }}>
       <Typography variant="h6" gutterBottom sx={{ color: "#1976d2", fontWeight: "bold" }}>
         Top 5 Sản Phẩm Bán Chạy
       </Typography>
@@ -23,7 +23,7 @@ export const TopProductsTable = ({ products }: { products: ReportOrders[] | unde
           <TableHead>
             <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: "bold", color: "#424242" }}>Tên Sản Phẩm</TableCell>
-              <TableCell align="right" sx={{ fontWeight: "bold", color: "#424242" }}>
+              <TableCell width={"30%"} align="right" sx={{ fontWeight: "bold", color: "#424242" }}>
                 Số Lượng Bán
               </TableCell>
             </TableRow>

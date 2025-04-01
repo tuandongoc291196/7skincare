@@ -75,7 +75,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
                     order.status === OrderStatuses.PENDING
                       ? "Chờ xử lý"
                       : order.status === OrderStatuses.APPROVED
-                        ? "Chờ thanh toán"
+                        ? "Đã phê duyệt"
                         : order.status === OrderStatuses.SUCCESS
                           ? "Đã thanh toán"
                           : order.status === OrderStatuses.DONE

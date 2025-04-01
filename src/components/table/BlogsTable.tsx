@@ -93,7 +93,6 @@ const BlogsTable: React.FC<BlogsTableProps> = ({ blogs, page, setPage }) => {
               <TableCell>ID</TableCell>
               <TableCell>Hình ảnh</TableCell>
               <TableCell>Tiêu đề</TableCell>
-              <TableCell>Chi tiết</TableCell>
               <TableCell align="center">Ngày tạo</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
               <TableCell align="center">Tác giả</TableCell>
@@ -114,7 +113,6 @@ const BlogsTable: React.FC<BlogsTableProps> = ({ blogs, page, setPage }) => {
                   />
                 </TableCell>
                 <TableCell width={"15%"}>{blog.title}</TableCell>
-                <TableCell>{blog.content}</TableCell>
                 <TableCell align="center" width={"15%"}>
                   {new Date(blog.createdAt).toLocaleString("vi-VN")}
                 </TableCell>

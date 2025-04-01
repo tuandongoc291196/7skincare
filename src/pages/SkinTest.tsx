@@ -64,9 +64,18 @@ const SkinTest: React.FC = () => {
     };
     testSkin.mutate(payload);
   };
+  const calculateTotalPoints = () => {
+    if (!data) return 0;
+
+    return data.reduce((total, question) => {
+      const maxPoint = Math.max(...question.listAnswers.map(answer => answer.point));
+      return total + maxPoint;
+    }, 0);
+  };
 
   if (isLoading) return <LoadingSection />;
-  if (testSkin.isSuccess) return <ResultSkinTestSection result={testSkin.data} />;
+  if (testSkin.isSuccess)
+    return <ResultSkinTestSection result={testSkin.data} totalPoint={calculateTotalPoints()} />;
 
   const currentQuestion = data?.[currentQuestionIndex];
 

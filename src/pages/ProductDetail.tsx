@@ -81,14 +81,21 @@ const ProductDetail = () => {
             <Typography variant="h6" color="primary" mt={1}>
               {product.price.toLocaleString()} VNĐ
             </Typography>
-            <Typography variant="body1" mt={2} color="text.secondary">
-              {product.description}
-            </Typography>
-
+            <Typography
+              mt={2}
+              variant="body1"
+              sx={{
+                lineHeight: "1.2",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
             {/* Stock Status */}
             <Typography
               variant="body1"
               mt={2}
+              fontWeight={600}
               color={product.quantity > 0 ? "success.main" : "error.main"}
             >
               {product.quantity > 0 ? `Còn ${product.quantity} sản phẩm` : "Hết hàng"}

@@ -1,4 +1,4 @@
-import { ReportOrders, ReportRevenue } from "@/types/schema/report";
+import { ReportOrders, ReportRevenue, ReportStatus } from "@/types/schema/report";
 import apiClient from "./client";
 
 export const BASE_PATH = "/report";
@@ -11,5 +11,9 @@ const reportRevenue = async (): Promise<ReportRevenue> => {
   const response = await apiClient.get(BASE_PATH + "/revenue");
   return response.data.data;
 };
+const reportStatus = async (): Promise<ReportStatus> => {
+  const response = await apiClient.get(BASE_PATH + "/status");
+  return response.data.data;
+};
 
-export { reportOrders, reportRevenue };
+export { reportOrders, reportRevenue, reportStatus };

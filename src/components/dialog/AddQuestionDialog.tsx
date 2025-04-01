@@ -125,7 +125,7 @@ const AddQuestionDialog: React.FC<AddQuestionDialogProps> = ({ open, onClose }) 
               value={answer.point}
               onChange={e => handleAnswerChange(index, "point", parseInt(e.target.value))}
               style={{ width: 80, marginLeft: 8 }}
-              inputProps={{ min: 1, max: 10 }}
+              inputProps={{ min: 0, max: 2 }}
               error={!!errors.answers?.[index] && errors.answers[index] === "0 đến 10"}
               helperText={errors.answers?.[index] === "0 đến 10" ? errors.answers[index] : ""}
             />
