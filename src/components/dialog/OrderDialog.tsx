@@ -64,6 +64,14 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
             <Typography>
               <strong>Tổng giá:</strong> {order.totalPrice.toLocaleString()} VNĐ
             </Typography>
+            {(order.status === OrderStatuses.CANCELED ||
+              order.status === OrderStatuses.REJECTED) && (
+              <Grid item xs={12}>
+                <Typography variant="body1">
+                  <strong>Lí do hủy:</strong> {order.reason}
+                </Typography>
+              </Grid>
+            )}
             <Box>
               <strong>Trạng thái:</strong>
               <Chip

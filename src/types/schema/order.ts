@@ -26,6 +26,7 @@ export interface Order {
   phoneNumber: string;
   totalPrice: number;
   status: OrderStatus;
+  reason: string;
   listProducts: OrderProduct[];
 }
 

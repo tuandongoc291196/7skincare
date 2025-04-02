@@ -66,7 +66,15 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
                 <strong>Tổng cộng:</strong> {order.totalPrice.toLocaleString()} VNĐ
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            {(order.status === OrderStatuses.CANCELED ||
+              order.status === OrderStatuses.REJECTED) && (
+              <Grid item xs={12}>
+                <Typography variant="body1">
+                  <strong>Lí do hủy:</strong> {order.reason}
+                </Typography>
+              </Grid>
+            )}
+            <Grid item xs={12}>
               <Box>
                 <strong>Trạng thái:</strong>{" "}
                 <Chip
