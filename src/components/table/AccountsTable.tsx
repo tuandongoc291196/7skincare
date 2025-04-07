@@ -135,8 +135,9 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
     }
   };
 
-  // Filter accounts based on role, status, and search query
   const filteredAccounts = accounts.filter(account => {
+    if (account.roleName === Roles.ADMIN) return false;
+
     const roleMatch = selectedRole === "ALL" || account.roleName === selectedRole;
     const statusMatch = selectedStatus === "ALL" || account.status === selectedStatus;
     const searchMatch =
@@ -165,7 +166,6 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
           <Tab label="Tất cả" value="ALL" />
           <Tab label="Nhân viên" value={Roles.STAFF} />
           <Tab label="Người dùng" value={Roles.USER} />
-          <Tab label="Quản trị viên" value={Roles.ADMIN} />
         </Tabs>
       </Box>
       {/* Search Input & Status Filter */}
@@ -174,6 +174,7 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
           size="small"
           label="Tìm kiếm theo tên hoặc email"
           variant="outlined"
+          autoComplete="off"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           sx={{ width: "300px" }}
@@ -220,13 +221,7 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
                     sx={{ height: "24px", borderRadius: "4px", fontWeight: 600 }}
                     variant="outlined"
                     label={account.roleName}
-                    color={
-                      account.roleName === Roles.STAFF
-                        ? "info"
-                        : account.roleName === Roles.ADMIN
-                          ? "secondary"
-                          : "primary"
-                    }
+                    color={account.roleName === Roles.STAFF ? "info" : "secondary"}
                   />
                 </TableCell>
                 <TableCell align="center">

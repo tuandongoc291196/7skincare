@@ -20,14 +20,17 @@ import { OrderData } from "@/types/schema/order";
 import { useQuery } from "@tanstack/react-query";
 import { getDistrict, getWard } from "@/apis/address";
 import { User } from "@/types/schema/user";
+import { CartProduct } from "@/types/schema/cart";
+import { District, Ward } from "@/types/schema/address";
 
 interface OrderConfirmationDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirmOrder: (orderData: OrderData) => void;
-  items: { price: number; quantity: number; id: number; name: string }[];
+  items: CartProduct[];
   user: User;
   provinceData: { ProvinceID: number; ProvinceName: string }[];
+  userAddress: string;
 }
 
 const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
@@ -37,10 +40,12 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
   items,
   user,
   provinceData,
+  userAddress,
 }) => {
   const [selectedProvince, setSelectedProvince] = useState<number | "">("");
   const [selectedDistrict, setSelectedDistrict] = useState<number | "">("");
   const [selectedWard, setSelectedWard] = useState<string>("");
+  const [useNewAddress, setUseNewAddress] = useState(false);
   const [address, setAddress] = useState({
     detail: "",
     ward: "",
@@ -81,12 +86,15 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
   };
 
   const handleOrder = () => {
+    const fullAddress = useNewAddress
+      ? `${address.detail}, ${address.ward}, ${address.district}, ${address.city}`
+      : userAddress;
     const orderData: OrderData = {
       accountId: user?.accountId as number,
-      address: `${address.detail}, ${address.ward}, ${address.district}, ${address.city}`,
+      address: fullAddress,
       phoneNumber: user?.phoneNumber as string,
-      listProducts: items.map(({ id, quantity }) => ({
-        productId: id,
+      listProducts: items.map(({ productDetailId, quantity }) => ({
+        productDetailId,
         quantity,
       })),
     };
@@ -95,6 +103,7 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
 
   const handleClose = () => {
     resetForm();
+    setUseNewAddress(false);
     onClose();
   };
 
@@ -102,107 +111,133 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle sx={{ fontWeight: 600, textAlign: "center" }}>Xác nhận thanh toán</DialogTitle>
       <DialogContent sx={{ minWidth: "400px", p: 3 }}>
-        {/* Address form */}
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          Vui lòng nhập địa chỉ giao hàng
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Địa chỉ giao hàng
+          </Typography>
+          {useNewAddress ? (
+            <Button
+              variant="text"
+              size="small"
+              sx={{ p: 0 }}
+              onClick={() => setUseNewAddress(false)}
+            >
+              Địa chỉ mặc định
+            </Button>
+          ) : (
+            <Button
+              variant="text"
+              size="small"
+              sx={{ p: 0 }}
+              onClick={() => setUseNewAddress(true)}
+            >
+              Địa chỉ mới
+            </Button>
+          )}
+        </Box>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Tỉnh/Thành phố</InputLabel>
-          <Select
-            value={selectedProvince}
-            onChange={e => {
-              const provinceId = Number(e.target.value);
-              const selectedProvince = provinceData.find(
-                province => province.ProvinceID === provinceId
-              );
-              if (selectedProvince) {
-                setSelectedProvince(provinceId);
-                setAddress(prevState => ({
-                  ...prevState,
-                  city: selectedProvince.ProvinceName,
-                }));
-              }
-            }}
-            label="Tỉnh/Thành phố"
-          >
-            {provinceData.map(province => (
-              <MenuItem key={province.ProvinceID} value={province.ProvinceID}>
-                {province.ProvinceName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {!useNewAddress ? (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              {userAddress}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Tỉnh/Thành phố</InputLabel>
+              <Select
+                value={selectedProvince}
+                onChange={e => {
+                  const provinceId = Number(e.target.value);
+                  const selectedProvince = provinceData.find(
+                    province => province.ProvinceID === provinceId
+                  );
+                  if (selectedProvince) {
+                    setSelectedProvince(provinceId);
+                    setAddress(prev => ({
+                      ...prev,
+                      city: selectedProvince.ProvinceName,
+                    }));
+                  }
+                }}
+                label="Tỉnh/Thành phố"
+              >
+                {provinceData.map(province => (
+                  <MenuItem key={province.ProvinceID} value={province.ProvinceID}>
+                    {province.ProvinceName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Quận/Huyện</InputLabel>
-          <Select
-            value={selectedDistrict}
-            onChange={e => {
-              const districtId = Number(e.target.value);
-              const selectedDistrict = districtData?.find(
-                (district: { DistrictID: number; DistrictName: string }) =>
-                  district.DistrictID === districtId
-              );
-              if (selectedDistrict) {
-                setSelectedDistrict(districtId);
-                setAddress(prevState => ({
-                  ...prevState,
-                  district: selectedDistrict.DistrictName,
-                }));
-              }
-            }}
-            label="Quận/Huyện"
-            disabled={!selectedProvince}
-          >
-            {districtData?.map((district: { DistrictID: number; DistrictName: string }) => (
-              <MenuItem key={district.DistrictID} value={district.DistrictID}>
-                {district.DistrictName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Quận/Huyện</InputLabel>
+              <Select
+                value={selectedDistrict}
+                onChange={e => {
+                  const districtId = Number(e.target.value);
+                  const selectedDistrict = districtData?.find(
+                    (d: District) => d.DistrictID === districtId
+                  );
+                  if (selectedDistrict) {
+                    setSelectedDistrict(districtId);
+                    setAddress(prev => ({
+                      ...prev,
+                      district: selectedDistrict.DistrictName,
+                    }));
+                  }
+                }}
+                label="Quận/Huyện"
+                disabled={!selectedProvince}
+              >
+                {districtData?.map((d: District) => (
+                  <MenuItem key={d.DistrictID} value={d.DistrictID}>
+                    {d.DistrictName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Phường/Xã</InputLabel>
-          <Select
-            value={selectedWard}
-            onChange={e => {
-              const wardCode = String(e.target.value);
-              const selectedWard = wardData?.find(
-                (ward: { WardCode: string; WardName: string }) => ward.WardCode === wardCode
-              );
-              if (selectedWard) {
-                setSelectedWard(wardCode);
-                setAddress(prevState => ({
-                  ...prevState,
-                  ward: selectedWard.WardName,
-                }));
-              }
-            }}
-            label="Phường/Xã"
-            disabled={!selectedDistrict}
-          >
-            {wardData?.map((ward: { WardCode: string; WardName: string }) => (
-              <MenuItem key={ward.WardCode} value={ward.WardCode}>
-                {ward.WardName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Phường/Xã</InputLabel>
+              <Select
+                value={selectedWard}
+                onChange={e => {
+                  const wardCode = String(e.target.value);
+                  const selectedWard = wardData?.find((w: Ward) => w.WardCode === wardCode);
+                  if (selectedWard) {
+                    setSelectedWard(wardCode);
+                    setAddress(prev => ({
+                      ...prev,
+                      ward: selectedWard.WardName,
+                    }));
+                  }
+                }}
+                label="Phường/Xã"
+                disabled={!selectedDistrict}
+              >
+                {wardData?.map((w: Ward) => (
+                  <MenuItem key={w.WardCode} value={w.WardCode}>
+                    {w.WardName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-        <TextField
-          label="Địa chỉ chi tiết"
-          fullWidth
-          name="detail"
-          value={address.detail}
-          onChange={handleAddressChange}
-          sx={{ mb: 2 }}
-          variant="outlined"
-        />
+            <TextField
+              label="Địa chỉ chi tiết"
+              fullWidth
+              name="detail"
+              value={address.detail}
+              onChange={handleAddressChange}
+              sx={{ mb: 2 }}
+              variant="outlined"
+            />
+          </>
+        )}
 
-        {/* Preview products */}
-        <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
             Danh sách sản phẩm:
           </Typography>
@@ -210,7 +245,7 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
         <Divider sx={{ mb: 2 }} />
         <Box sx={{ mb: 3 }}>
           {items.map(item => (
-            <Card key={item.id} sx={{ mb: 1, borderRadius: 2, boxShadow: 1 }}>
+            <Card key={item.productDetailId} sx={{ mb: 1, borderRadius: 2, boxShadow: 1 }}>
               <Grid container spacing={1} p={1}>
                 <Grid item xs={8}>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -260,7 +295,10 @@ const OrderConfirmationDialog: React.FC<OrderConfirmationDialogProps> = ({
           variant="contained"
           color="primary"
           sx={{ fontWeight: 600 }}
-          disabled={!address.detail || !selectedWard || !selectedDistrict || !selectedProvince}
+          disabled={
+            useNewAddress &&
+            (!address.detail || !selectedWard || !selectedDistrict || !selectedProvince)
+          }
         >
           Xác nhận
         </Button>

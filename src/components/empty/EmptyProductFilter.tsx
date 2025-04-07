@@ -11,12 +11,11 @@ const EmptyProductFilter = ({ clearFilters }: EmptyProductFilterProps) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "50vh",
+        minHeight: "100vh",
+        height: "auto",
         width: "100%",
-        bgcolor: "grey.100",
         borderRadius: 2,
         p: 4,
-        mt: 4,
       }}
     >
       <SentimentDissatisfiedOutlined

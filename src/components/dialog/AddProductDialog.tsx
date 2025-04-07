@@ -14,15 +14,16 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
-import { ProductCreate } from "@/types/schema/product";
+import { ProductCreate, ProductDetails } from "@/types/schema/product";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { storage } from "@/firebase-config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { createProduct } from "@/apis/product";
 import { Category } from "@/types/schema/category";
 import { Brand } from "@/types/schema/brand";
-import { Image } from "@mui/icons-material";
+import { Image, Add, Delete } from "@mui/icons-material";
 import { useAlert } from "@/hooks/useAlert";
 import useAuthStore from "@/hooks/useAuth";
 import { SkinType } from "@/types/schema/skin-type";
@@ -60,9 +61,18 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     description: "",
     image: "",
     name: "",
-    price: 0,
-    quantity: 0,
     skinTypeId: [],
+    effect: "",
+    ingredient: "",
+    instructionManual: "",
+    productSpecifications: "",
+    productDetails: [
+      {
+        price: 0,
+        capacity: "",
+        quantity: 0,
+      },
+    ],
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -76,25 +86,32 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     onSuccess: async () => {
       showAlert("Thêm sản phẩm mới thành công", "success");
       await queryClient.invalidateQueries({ queryKey: ["get-products"] });
-      setNewProduct({
-        accountId: user?.accountId as number,
-        brandId: 0,
-        categoryId: 0,
-        description: "",
-        image: "",
-        name: "",
-        price: 0,
-        quantity: 0,
-        skinTypeId: [],
-      });
-      setSelectedFile(null);
-      setErrors({});
+      resetForm();
       handleClose();
     },
     onError: () => {
       showAlert("Thêm sản phẩm mới thất bại", "error");
     },
   });
+
+  const resetForm = () => {
+    setNewProduct({
+      accountId: user?.accountId as number,
+      brandId: 0,
+      categoryId: 0,
+      description: "",
+      image: "",
+      name: "",
+      skinTypeId: [],
+      effect: "",
+      ingredient: "",
+      instructionManual: "",
+      productSpecifications: "",
+      productDetails: [],
+    });
+    setSelectedFile(null);
+    setErrors({});
+  };
 
   const handleChange = (event: { target: { name: string; value: string | number } }) => {
     const { name, value } = event.target;
@@ -117,16 +134,80 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     }
   };
 
+  const handleProductDetailChange = (
+    index: number,
+    field: keyof ProductDetails,
+    value: string | number
+  ) => {
+    const updatedDetails = [...newProduct.productDetails];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      [field]: value,
+    };
+    setNewProduct({ ...newProduct, productDetails: updatedDetails });
+    // Clear error when field changes
+    if (errors[`detail_${index}_${field}`]) {
+      setErrors({ ...errors, [`detail_${index}_${field}`]: "" });
+    }
+  };
+
+  const addProductDetail = () => {
+    setNewProduct({
+      ...newProduct,
+      productDetails: [
+        ...newProduct.productDetails,
+        {
+          price: 0,
+          capacity: "",
+          quantity: 0,
+        },
+      ],
+    });
+  };
+
+  const removeProductDetail = (index: number) => {
+    const updatedDetails = newProduct.productDetails.filter((_, i) => i !== index);
+    setNewProduct({ ...newProduct, productDetails: updatedDetails });
+    const newErrors = { ...errors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.startsWith(`detail_${index}_`)) {
+        delete newErrors[key];
+      }
+    });
+    setErrors(newErrors);
+  };
+
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};
     if (!newProduct.name) newErrors.name = "Tên sản phẩm không được để trống";
-    if (newProduct.price <= 0) newErrors.price = "Giá phải lớn hơn 0";
-    if (newProduct.quantity < 0) newErrors.quantity = "Số lượng không được nhỏ hơn 0";
     if (newProduct.categoryId === 0) newErrors.categoryId = "Vui lòng chọn danh mục";
     if (newProduct.brandId === 0) newErrors.brandId = "Vui lòng chọn thương hiệu";
     if (!newProduct.image) newErrors.image = "Vui lòng chọn hình ảnh";
+    if (!newProduct.effect) newErrors.effect = "Công dụng không được để trống";
+    if (!newProduct.ingredient) newErrors.ingredient = "Thành phần không được để trống";
+    if (!newProduct.description) newErrors.description = "Mô tả không được để trống";
+    if (!newProduct.instructionManual)
+      newErrors.instructionManual = "Hướng dẫn sử dụng không được để trống";
+    if (!newProduct.productSpecifications)
+      newErrors.productSpecifications = "Thông số sản phẩm không được để trống";
     if (newProduct.skinTypeId.length === 0)
       newErrors.skinTypeId = "Vui lòng chọn ít nhất một loại da";
+
+    // Validate product details
+    const capacities = new Set<string>();
+    newProduct.productDetails.forEach((detail, index) => {
+      if (!detail.capacity) {
+        newErrors[`detail_${index}_capacity`] = "Dung tích không được để trống";
+      } else if (capacities.has(detail.capacity)) {
+        newErrors[`detail_${index}_capacity`] = "Dung tích không được trùng lặp";
+      } else {
+        capacities.add(detail.capacity);
+      }
+
+      if (detail.price <= 0) newErrors[`detail_${index}_price`] = "Giá phải lớn hơn 0";
+      if (detail.quantity < 0)
+        newErrors[`detail_${index}_quantity`] = "Số lượng không được nhỏ hơn 0";
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -156,7 +237,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={5}>
+          <Grid item xs={12} sm={4}>
             <input
               type="file"
               accept="image/*"
@@ -172,7 +253,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   borderRadius: 2,
                   border: errors.image ? "1px solid red" : "1px solid grey",
                   overflow: "hidden",
-                  height: "100%",
+                  height: "300px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -186,7 +267,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                     style={{ width: "100%", display: "block" }}
                   />
                 ) : (
-                  <Box display={"flex"} flexDirection={"column"} alignItems={"center"} gap={1}>
+                  <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
                     <Image color="action" sx={{ height: 50, width: 50 }} />
                     <Typography fontWeight={500} color="textSecondary">
                       Chọn hình ảnh
@@ -201,7 +282,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
               </Typography>
             )}
           </Grid>
-          <Grid item xs={12} sm={7}>
+          <Grid item xs={12} sm={8}>
             {isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
               <Box
                 display="flex"
@@ -223,56 +304,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                   error={!!errors.name}
                   helperText={errors.name}
                 />
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Mô tả"
-                  name="description"
-                  value={newProduct.description}
-                  onChange={handleChange}
-                  margin="dense"
-                  multiline
-                  minRows={2}
-                  maxRows={3}
-                />
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Giá (VNĐ)"
-                  name="price"
-                  type="number"
-                  value={newProduct.price}
-                  onChange={e => {
-                    const value = e.target.value;
-                    if (value === "" || parseInt(value, 10) >= 0) handleChange(e);
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === "-" || e.key === "e") e.preventDefault();
-                  }}
-                  margin="dense"
-                  inputProps={{ min: 0, step: 500 }}
-                  error={!!errors.price}
-                  helperText={errors.price}
-                />
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Số lượng"
-                  name="quantity"
-                  type="number"
-                  value={newProduct.quantity}
-                  onChange={e => {
-                    const value = e.target.value;
-                    if (value === "" || parseInt(value, 10) >= 0) handleChange(e);
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === "-" || e.key === "e") e.preventDefault();
-                  }}
-                  margin="dense"
-                  inputProps={{ min: 0 }}
-                  error={!!errors.quantity}
-                  helperText={errors.quantity}
-                />
+
                 <FormControl size="small" fullWidth margin="dense" error={!!errors.categoryId}>
                   <InputLabel>Danh mục</InputLabel>
                   <Select name="categoryId" value={newProduct.categoryId} onChange={handleChange}>
@@ -339,6 +371,158 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                     </Typography>
                   )}
                 </FormControl>
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Mô tả"
+                  name="description"
+                  value={newProduct.description}
+                  onChange={handleChange}
+                  margin="dense"
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  error={!!errors.description}
+                  helperText={errors.description}
+                />
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Thành phần"
+                  name="ingredient"
+                  value={newProduct.ingredient}
+                  onChange={handleChange}
+                  margin="dense"
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  error={!!errors.ingredient}
+                  helperText={errors.ingredient}
+                />
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Công dụng"
+                  name="effect"
+                  value={newProduct.effect}
+                  onChange={handleChange}
+                  margin="dense"
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  error={!!errors.effect}
+                  helperText={errors.effect}
+                />
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Hướng dẫn sử dụng"
+                  name="instructionManual"
+                  value={newProduct.instructionManual}
+                  onChange={handleChange}
+                  margin="dense"
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  error={!!errors.instructionManual}
+                  helperText={errors.instructionManual}
+                />
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Thông số sản phẩm"
+                  name="productSpecifications"
+                  value={newProduct.productSpecifications}
+                  onChange={handleChange}
+                  margin="dense"
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  error={!!errors.productSpecifications}
+                  helperText={errors.productSpecifications}
+                />
+                {/* Product Details Section */}
+                <Box mt={2}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Typography fontWeight={500}>Chi tiết sản phẩm</Typography>
+                    <Button
+                      startIcon={<Add />}
+                      onClick={addProductDetail}
+                      size="small"
+                      variant="outlined"
+                    >
+                      Thêm
+                    </Button>
+                  </Box>
+                  {newProduct.productDetails.map((detail, index) => (
+                    <Box key={index} mb={2}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                          <TextField
+                            size="small"
+                            fullWidth
+                            label="Dung tích"
+                            value={detail.capacity}
+                            onChange={e =>
+                              handleProductDetailChange(index, "capacity", e.target.value)
+                            }
+                            error={!!errors[`detail_${index}_capacity`]}
+                            helperText={errors[`detail_${index}_capacity`]}
+                          />
+                        </Grid>
+                        <Grid item xs={3.5}>
+                          <TextField
+                            size="small"
+                            fullWidth
+                            label="Giá"
+                            type="number"
+                            value={detail.price}
+                            onChange={e => {
+                              const value = e.target.value;
+                              if (value === "" || parseInt(value, 10) >= 0)
+                                handleProductDetailChange(index, "price", e.target.value);
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === "-" || e.key === "e") e.preventDefault();
+                            }}
+                            inputProps={{ min: 0 }}
+                            error={!!errors[`detail_${index}_price`]}
+                            helperText={errors[`detail_${index}_price`]}
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <TextField
+                            size="small"
+                            fullWidth
+                            label="Số lượng"
+                            type="number"
+                            value={detail.quantity}
+                            onChange={e => {
+                              const value = e.target.value;
+                              if (value === "" || parseInt(value, 10) >= 0)
+                                handleProductDetailChange(
+                                  index,
+                                  "quantity",
+                                  parseInt(e.target.value)
+                                );
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === "-" || e.key === "e") e.preventDefault();
+                            }}
+                            inputProps={{ min: 0 }}
+                            error={!!errors[`detail_${index}_quantity`]}
+                            helperText={errors[`detail_${index}_quantity`]}
+                          />
+                        </Grid>
+                        <Grid item xs={1.5}>
+                          <IconButton onClick={() => removeProductDetail(index)} color="error">
+                            <Delete />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  ))}
+                </Box>
               </>
             )}
           </Grid>

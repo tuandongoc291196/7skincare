@@ -17,7 +17,6 @@ import { Product } from "@/types/schema/product";
 import ProductDialog from "../dialog/ProductDialog";
 import { Brand } from "@/types/schema/brand";
 import { Category } from "@/types/schema/category";
-import { skinTypeMap } from "@/constants/skinTypes";
 import { SkinType } from "@/types/schema/skin-type";
 
 interface ProductsTableProps {
@@ -43,6 +42,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
   isLoadingCategories,
   isLoadingSkins,
 }) => {
+  console.log(products);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [open, setOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -77,12 +77,9 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
               <TableCell>ID</TableCell>
               <TableCell>Hình ảnh</TableCell>
               <TableCell>Tên sản phẩm</TableCell>
-              <TableCell align="center">Giá (VNĐ)</TableCell>
-              <TableCell align="center">Số lượng</TableCell>
               <TableCell align="center">Ngày tạo</TableCell>
               <TableCell align="center">Danh mục</TableCell>
               <TableCell align="center">Thương hiệu</TableCell>
-              <TableCell align="center">Loại da</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
               <TableCell align="center">Chi tiết</TableCell>
             </TableRow>
@@ -101,22 +98,11 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                   />
                 </TableCell>
                 <TableCell width={"30%"}>{product.name}</TableCell>
-                <TableCell align="center">{product.price.toLocaleString()}</TableCell>
-                <TableCell align="center">{product.quantity}</TableCell>
                 <TableCell align="center">
                   {new Date(product.createdAt).toLocaleDateString("vi-VN")}
                 </TableCell>
                 <TableCell align="center">{product.category.name}</TableCell>
                 <TableCell align="center">{product.brand.name}</TableCell>
-                <TableCell align="center">
-                  {typeof product.suitableFor === "string"
-                    ? product.suitableFor
-                        .replace(/,\s*$/, "")
-                        .split(", ")
-                        .map(type => skinTypeMap[type.trim()] || type)
-                        .join(", ")
-                    : product.suitableFor || ""}
-                </TableCell>
                 <TableCell align="center">
                   <Chip
                     label={product.status === Statuses.ACTIVATED ? "Hoạt động" : "Vô hiệu hóa"}

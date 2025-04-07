@@ -102,7 +102,7 @@ const BlogsTable: React.FC<BlogsTableProps> = ({ blogs, page, setPage }) => {
           <TableBody>
             {paginatedBlogs.map(blog => (
               <TableRow key={blog.id}>
-                <TableCell>{blog.id}</TableCell>
+                <TableCell width={"5%"}>{blog.id}</TableCell>
                 <TableCell sx={{ width: 80, height: 80, overflow: "hidden" }}>
                   <img
                     src={blog.image}
@@ -112,7 +112,7 @@ const BlogsTable: React.FC<BlogsTableProps> = ({ blogs, page, setPage }) => {
                     style={{ objectFit: "cover", border: "1px solid grey", borderRadius: "5px" }}
                   />
                 </TableCell>
-                <TableCell width={"15%"}>{blog.title}</TableCell>
+                <TableCell width={"30%"}>{blog.title}</TableCell>
                 <TableCell align="center" width={"15%"}>
                   {new Date(blog.createdAt).toLocaleString("vi-VN")}
                 </TableCell>

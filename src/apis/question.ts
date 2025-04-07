@@ -19,4 +19,8 @@ const deleteQuestion = async (id: number) => {
   const response = await apiClient.delete(BASE_PATH + "/", { params: { id: id } });
   return response.data;
 };
-export { createQuestion, getQuestions, deleteQuestion, updateQuestion };
+const getRandomQuestions = async (): Promise<Question[]> => {
+  const response = await apiClient.get(BASE_PATH + "/getRandom");
+  return response.data.data;
+};
+export { createQuestion, getQuestions, deleteQuestion, updateQuestion, getRandomQuestions };

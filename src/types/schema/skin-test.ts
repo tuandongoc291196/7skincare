@@ -1,6 +1,6 @@
 import { Status } from "@/constants/status";
 import { SkinType } from "./skin-type";
-import { Account } from "./user";
+import { Account, User } from "./user";
 import { Product } from "./product";
 
 export interface QA {
@@ -37,8 +37,20 @@ export interface SkinTestResult {
   totalPoint: number;
   testTime: number;
   status: Status;
+  maxPoint: number;
   userTestResponse: UserTestResponse[];
   skinType: SkinType;
   user: Account;
   suitableProducts: Product[];
 }
+
+export type UserTest = {
+  id: number;
+  createdAt: string;
+  totalPoint: number;
+  testTime: number;
+  maxPoint: number;
+  status: Status;
+  skinType: SkinType;
+  user: User;
+};

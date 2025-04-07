@@ -24,6 +24,7 @@ import {
   Close as CloseIcon,
   ExitToApp,
   AccountCircle,
+  History,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -131,12 +132,20 @@ const Header = () => {
                   Thông tin cá nhân
                 </MenuItem>
                 {(user === null || user.roleName === Roles.USER) && (
-                  <MenuItem onClick={() => navigate("/theo-doi-don-hang")}>
-                    <ListItemIcon>
-                      <ShoppingBag />
-                    </ListItemIcon>
-                    Đơn hàng
-                  </MenuItem>
+                  <>
+                    <MenuItem onClick={() => navigate("/theo-doi-don-hang")}>
+                      <ListItemIcon>
+                        <ShoppingBag />
+                      </ListItemIcon>
+                      Đơn hàng
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/lich-su-kiem-tra-loai-da")}>
+                      <ListItemIcon>
+                        <History />
+                      </ListItemIcon>
+                      Lịch sử kiểm tra loại da
+                    </MenuItem>
+                  </>
                 )}
                 <MenuItem onClick={handleLogout}>
                   <ListItemIcon>

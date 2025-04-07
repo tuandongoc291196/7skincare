@@ -1,14 +1,33 @@
-import { OrderStatus } from "@/constants/status";
-import { Product } from "./product";
+import { OrderStatus, Status } from "@/constants/status";
+import { Category } from "./category";
+import { Brand } from "./brand";
 
 export interface OrderData {
   accountId: number;
   address: string;
   listProducts: {
-    productId: number;
+    productDetailId: number;
     quantity: number;
   }[];
   phoneNumber: string;
+}
+export interface ProductDetailResponse {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  status: Status;
+  createdAt: string;
+  category: Category;
+  brand: Brand;
+  createdBy: string;
+  suitableFor: string;
+  effect: string;
+  ingredient: string;
+  instructionManual: string;
+  productSpecifications: string;
+  price: string;
+  capacity: number;
 }
 
 export interface OrderProduct {
@@ -17,7 +36,7 @@ export interface OrderProduct {
   quantity: number;
   status: string;
   price: number;
-  productResponse: Product;
+  productDetailResponse: ProductDetailResponse;
 }
 export interface Order {
   id: number;

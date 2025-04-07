@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getQuestions } from "@/apis/question";
+import { getRandomQuestions } from "@/apis/question";
 import useAuthStore from "@/hooks/useAuth";
 import { SkinTestData } from "@/types/schema/skin-test";
 import { createTest } from "@/apis/skin-test";
@@ -15,7 +15,10 @@ import QuestionSection from "@/components/section/QuestionSection";
 
 const SkinTest: React.FC = () => {
   const { showAlert } = useAlert();
-  const { data, isLoading } = useQuery({ queryKey: ["get-questions"], queryFn: getQuestions });
+  const { data, isLoading } = useQuery({
+    queryKey: ["get-questions"],
+    queryFn: getRandomQuestions,
+  });
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [showQuiz, setShowQuiz] = useState(false);
@@ -64,18 +67,9 @@ const SkinTest: React.FC = () => {
     };
     testSkin.mutate(payload);
   };
-  const calculateTotalPoints = () => {
-    if (!data) return 0;
-
-    return data.reduce((total, question) => {
-      const maxPoint = Math.max(...question.listAnswers.map(answer => answer.point));
-      return total + maxPoint;
-    }, 0);
-  };
 
   if (isLoading) return <LoadingSection />;
-  if (testSkin.isSuccess)
-    return <ResultSkinTestSection result={testSkin.data} totalPoint={calculateTotalPoints()} />;
+  if (testSkin.isSuccess) return <ResultSkinTestSection result={testSkin.data} />;
 
   const currentQuestion = data?.[currentQuestionIndex];
 

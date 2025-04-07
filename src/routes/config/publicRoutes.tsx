@@ -4,6 +4,7 @@ import BlogDetail from "@/pages/BlogDetail";
 import Cart from "@/pages/Cart";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import ManageUserSkinTest from "@/pages/ManageUserSkinTest";
 import OrderTracking from "@/pages/OrderTracking";
 import ProductDetail from "@/pages/ProductDetail";
 import Products from "@/pages/Products";
@@ -72,6 +73,11 @@ export const publicRoutes: Route[] = [
   {
     path: "/theo-doi-don-hang",
     component: <OrderTracking />,
+    hidden: true,
+  },
+  {
+    path: "/lich-su-kiem-tra-loai-da",
+    component: <ManageUserSkinTest />,
     hidden: true,
   },
 ];

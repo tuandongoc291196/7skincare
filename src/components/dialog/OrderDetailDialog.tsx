@@ -21,7 +21,7 @@ interface OrderDetailDialogProps {
 
 const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose }) => {
   if (!order) return null;
-
+  console.log(order);
   return (
     <Dialog open={!!order} onClose={onClose} maxWidth="sm" fullWidth>
       {/* Dialog Header */}
@@ -38,7 +38,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="body1">
-                <strong>ID:</strong> {order.id}
+                <strong>Mã đơn hàng:</strong> {order.id}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -119,13 +119,16 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
             {order.listProducts.map(product => (
               <Paper key={product.id} sx={{ p: 2, mb: 1, display: "flex", alignItems: "center" }}>
                 <img
-                  src={product.productResponse.image}
-                  alt={product.productResponse.name}
+                  src={product.productDetailResponse.image}
+                  alt={product.productDetailResponse.name}
                   style={{ width: 50, height: 50, borderRadius: 8, marginRight: 10 }}
                 />
                 <Box>
                   <Typography variant="body1" fontWeight="bold">
-                    {product.productResponse.name}
+                    {product.productDetailResponse.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Dung tích: {product.productDetailResponse.capacity}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
                     {product.quantity} x {product.price.toLocaleString()} VNĐ

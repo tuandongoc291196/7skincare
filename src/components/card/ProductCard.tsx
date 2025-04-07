@@ -1,35 +1,21 @@
+// ProductCard.tsx
 import React from "react";
 import { Card, CardMedia, CardContent, Typography, Button, Box } from "@mui/material";
-import useCartStore from "@/hooks/useCart";
 import { Product } from "@/types/schema/product";
-import { useAlert } from "@/hooks/useAlert";
-import { skinTypeMap } from "@/constants/skinTypes";
 import { useNavigate } from "react-router-dom";
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-  const { addItem, items } = useCartStore();
-  const { showAlert } = useAlert();
   const navigate = useNavigate();
 
-  const handleAddToCart = (event: React.MouseEvent) => {
-    event.stopPropagation();
+  const totalQuantity = product.productDetails.reduce((sum, detail) => sum + detail.quantity, 0);
 
-    const isProductInCart = items.some(item => item.id === product.id);
-    if (isProductInCart) {
-      showAlert("Sản phẩm đã có trong giỏ hàng", "error");
-    } else {
-      const cartItem = {
-        id: product.id,
-        image: product.image,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-      };
-
-      addItem(cartItem);
-      showAlert("Thêm vào giỏ hàng thành công", "success");
-    }
-  };
+  const prices = product.productDetails.map(detail => detail.price);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const priceRangeDisplay =
+    minPrice === maxPrice
+      ? `${minPrice.toLocaleString("vi-VN")}₫`
+      : `${minPrice.toLocaleString("vi-VN")}₫ - ${maxPrice.toLocaleString("vi-VN")}₫`;
 
   return (
     <Card
@@ -68,25 +54,29 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           padding: "8px 16px",
         }}
       >
-        <Typography gutterBottom variant="body2" component="div" textAlign={"justify"}>
+        <Typography
+          gutterBottom
+          variant="body2"
+          component="div"
+          textAlign={"justify"}
+          sx={{
+            maxHeight: "3.2em",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
           {product.name}
         </Typography>
-        <Typography gutterBottom variant="subtitle2" component="div" textAlign={"justify"}>
-          {typeof product.suitableFor === "string"
-            ? product.suitableFor
-                .replace(/,\s*$/, "")
-                .split(", ")
-                .map(type => skinTypeMap[type.trim()] || type)
-                .join(", ")
-            : product.suitableFor || ""}{" "}
-        </Typography>
         <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
-          <Typography variant="h6" color="text.primary">
-            {product.price.toLocaleString()} đ
+          <Typography variant="body2" color="success">
+            Đã bán: {product.noOfSold}
           </Typography>
-          {product.quantity > 0 ? (
+          {totalQuantity > 0 ? (
             <Typography variant="body2" color="text.secondary">
-              Còn hàng: {product.quantity}
+              Còn hàng: {totalQuantity}
             </Typography>
           ) : (
             <Typography variant="body2" color="error">
@@ -94,15 +84,13 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
             </Typography>
           )}
         </Box>
+        <Typography variant="body1" color="primary" fontWeight="bold">
+          {priceRangeDisplay}
+        </Typography>
       </CardContent>
       <Box sx={{ px: 2, pb: 2 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={handleAddToCart}
-          disabled={product.quantity === 0}
-        >
-          {product.quantity === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
+        <Button variant="contained" fullWidth>
+          Xem chi tiết
         </Button>
       </Box>
     </Card>

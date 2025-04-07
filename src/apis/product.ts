@@ -20,7 +20,7 @@ const updateProduct = async (data: ProductUpdate) => {
   return response.data;
 };
 
-const getProductById = async (id: number) => {
+const getProductById = async (id: number): Promise<Product> => {
   const response = await apiClient.get(BASE_PATH + `/?id=${id}`);
   return response.data.data;
 };

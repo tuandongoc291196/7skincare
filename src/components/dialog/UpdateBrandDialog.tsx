@@ -25,7 +25,7 @@ const UpdateBrandDialog: React.FC<UpdateBrandDialogProps> = ({
 }) => {
   return (
     <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-      <DialogTitle>Cập nhật danh mục</DialogTitle>
+      <DialogTitle>Cập nhật thương hiệu</DialogTitle>
       <DialogContent>
         <TextField
           margin="dense"

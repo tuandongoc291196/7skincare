@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { ArrowBack, Edit } from "@mui/icons-material";
-import { Product, ProductUpdate } from "@/types/schema/product";
+import { Product, ProductDetails, ProductUpdate } from "@/types/schema/product";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { storage } from "@/firebase-config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -51,7 +51,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [updatedProduct, setUpdatedProduct] = useState<ProductUpdate | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({}); // Added for validation
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const updateProductMutation = useMutation({
     mutationKey: ["update-product"],
@@ -83,6 +83,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   };
 
   useEffect(() => {
+    setIsEditing(false);
+    setUpdatedProduct(null);
+    setSelectedFile(null);
+    setErrors({});
+  }, []);
+
+  useEffect(() => {
     if (product) {
       setUpdatedProduct({
         brandId: product.brand?.id as number,
@@ -91,9 +98,17 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         id: product.id as number,
         image: product.image || "",
         name: product.name || "",
-        price: product.price || 0,
-        quantity: product.quantity || 0,
         skinTypeId: getSkinIdsFromSuitableFor(product.suitableFor || "", skins),
+        effect: product.effect || "",
+        ingredient: product.ingredient || "",
+        instructionManual: product.instructionManual || "",
+        productSpecifications: product.productSpecifications || "",
+        productDetails: product.productDetails.map(detail => ({
+          id: detail.id,
+          price: detail.price,
+          quantity: detail.quantity,
+          capacity: detail.capacity,
+        })),
       });
     }
   }, [product, isEditing]);
@@ -127,6 +142,50 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleProductDetailChange = (
+    index: number,
+    field: keyof ProductDetails,
+    value: string | number
+  ) => {
+    if (!updatedProduct) return;
+    const updatedDetails = [...updatedProduct.productDetails];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      [field]: value,
+    };
+    setUpdatedProduct({ ...updatedProduct, productDetails: updatedDetails });
+    if (errors[`detail_${index}_${field}`]) {
+      setErrors({ ...errors, [`detail_${index}_${field}`]: "" });
+    }
+  };
+
+  const removeProductDetail = (index: number) => {
+    if (!updatedProduct) return;
+    const updatedDetails = updatedProduct.productDetails.filter((_, i) => i !== index);
+    setUpdatedProduct({ ...updatedProduct, productDetails: updatedDetails });
+    const newErrors = { ...errors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.startsWith(`detail_${index}_`)) {
+        delete newErrors[key];
+      }
+    });
+    setErrors(newErrors);
+  };
+  const addProductDetail = () => {
+    if (!updatedProduct) return;
+    setUpdatedProduct({
+      ...updatedProduct,
+      productDetails: [
+        ...updatedProduct.productDetails,
+        {
+          id: 0,
+          price: 0,
+          capacity: "",
+          quantity: 0,
+        },
+      ],
+    });
+  };
   const handleSave = async () => {
     if (validateFields())
       if (updatedProduct) {
@@ -144,7 +203,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   if (!updatedProduct || !product) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Typography fontSize={20} fontWeight={600}>
           {isEditing ? "Chỉnh sửa sản phẩm" : "Chi tiết sản phẩm"}
@@ -172,6 +231,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
               isLoadingBrands={isLoadingBrands}
               onChange={handleChange}
               errors={errors}
+              handleProductDetailChange={handleProductDetailChange}
+              removeProductDetail={removeProductDetail}
+              addProductDetail={addProductDetail}
             />
           ) : (
             <ProductDetailsView product={product} />

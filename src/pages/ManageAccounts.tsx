@@ -5,7 +5,6 @@ import LoadingSection from "@/components/section/LoadingSection";
 import AccountsTable from "@/components/table/AccountsTable";
 import { getAccounts } from "@/apis/account";
 import AddStaffAccountDialog from "@/components/dialog/AddStaffAccountDialog";
-
 const ManageAccounts = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
@@ -17,12 +16,17 @@ const ManageAccounts = () => {
   });
 
   const handleOpen = () => {
+    console.log("Opening dialog, searchQuery before:", searchQuery); // Debug
     setOpen(true);
+    console.log("Opening dialog, searchQuery after:", searchQuery); // Debug
   };
 
   const handleClose = () => {
     setOpen(false);
   };
+
+  console.log("Current searchQuery:", searchQuery); // Moved outside render for clarity
+
   return (
     <Container sx={{ marginTop: "20px" }}>
       <Box display={"flex"} justifyContent={"space-between"} sx={{ marginBottom: "10px" }}>

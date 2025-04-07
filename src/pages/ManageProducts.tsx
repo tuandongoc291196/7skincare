@@ -1,19 +1,31 @@
-import { useState } from "react";
-import { Container, Typography, Button, Box, TextField } from "@mui/material";
+// ManageProducts.tsx
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  TextField,
+  CircularProgress,
+  Grid,
+} from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import LoadingSection from "@/components/section/LoadingSection";
 import { getProducts } from "@/apis/product";
-import ProductsTable from "@/components/table/ProductsTable";
 import { getCategories } from "@/apis/category";
 import { getBrands } from "@/apis/brand";
-import AddProductDialog from "@/components/dialog/AddProductDialog";
-import FilterSection from "@/components/section/FilterSection";
 import { getSkinTypes } from "@/apis/skin-type";
+import FilterSection from "@/components/section/FilterSection";
+import ProductsTable from "@/components/table/ProductsTable";
+import AddProductDialog from "@/components/dialog/AddProductDialog";
+import { Product } from "@/types/schema/product";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const ManageProducts = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(0);
+  const [sortByDateAsc, setSortByDateAsc] = useState(false); // Default: false (newest first)
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["get-products"],
@@ -31,16 +43,18 @@ const ManageProducts = () => {
     queryKey: ["get-skin-types"],
     queryFn: () => getSkinTypes(),
   });
+
   // Filter states
-  const [brandFilter, setBrandFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [priceRangeFilter, setPriceRangeFilter] = useState("");
-  const [skinTypeFilter, setSkinTypeFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState<string[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [priceRangeFilter, setPriceRangeFilter] = useState<string[]>([]);
+  const [skinTypeFilter, setSkinTypeFilter] = useState<string[]>([]);
   const [appliedFilters, setAppliedFilters] = useState({
-    brand: "",
-    category: "",
-    priceRange: "",
-    skinType: "",
+    brand: [] as string[],
+    category: [] as string[],
+    priceRange: [] as string[],
+    skinType: [] as string[],
+    searchQuery: "",
   });
 
   const priceRanges = [
@@ -51,25 +65,44 @@ const ManageProducts = () => {
     { label: "> 500,000", value: "500000+", range: [500000, Infinity] },
   ];
 
-  const filteredProducts = (products ?? [])
-    .filter(product => {
-      const selectedRange = priceRanges.find(range => range.value === appliedFilters.priceRange);
-      const [minPrice, maxPrice] = selectedRange ? selectedRange.range : [0, Infinity];
-
-      return (
-        (!appliedFilters.brand || product.brand.name === appliedFilters.brand) &&
-        (!appliedFilters.category || product.category.name === appliedFilters.category) &&
-        (!appliedFilters.skinType || product.suitableFor.includes(appliedFilters.skinType)) &&
-        product.price >= minPrice &&
-        product.price <= maxPrice &&
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    })
-    .sort((a, b) => {
-      if (a.quantity > 0 && b.quantity === 0) return -1;
-      if (a.quantity === 0 && b.quantity > 0) return 1;
-      return 0;
+  // Update applied filters whenever any filter changes
+  useEffect(() => {
+    setAppliedFilters({
+      brand: brandFilter,
+      category: categoryFilter,
+      priceRange: priceRangeFilter,
+      skinType: skinTypeFilter,
+      searchQuery: searchQuery,
     });
+    setPage(0);
+  }, [brandFilter, categoryFilter, priceRangeFilter, skinTypeFilter, searchQuery]);
+
+  const filteredProducts = (products ?? []).filter((product: Product) => {
+    const hasPriceInRange =
+      appliedFilters.priceRange.length === 0
+        ? true
+        : product.productDetails.some(detail =>
+            priceRanges.some(range => {
+              if (!appliedFilters.priceRange.includes(range.value)) return false;
+              const [minPrice, maxPrice] = range.range;
+              return detail.price >= minPrice && detail.price <= maxPrice;
+            })
+          );
+
+    return (
+      (appliedFilters.brand.length === 0 || appliedFilters.brand.includes(product.brand.name)) &&
+      (appliedFilters.category.length === 0 ||
+        appliedFilters.category.includes(product.category.name)) &&
+      (appliedFilters.skinType.length === 0 ||
+        appliedFilters.skinType.some(type => product.suitableFor.includes(type))) &&
+      hasPriceInRange &&
+      product.name.toLowerCase().includes(appliedFilters.searchQuery.toLowerCase())
+    );
+  });
+
+  if (sortByDateAsc) {
+    filteredProducts.reverse();
+  }
 
   const handleOpen = () => {
     setOpen(true);
@@ -79,90 +112,106 @@ const ManageProducts = () => {
     setOpen(false);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-    setPage(0);
-  };
-
-  const applyFilters = () => {
-    setAppliedFilters({
-      brand: brandFilter,
-      category: categoryFilter,
-      priceRange: priceRangeFilter,
-      skinType: skinTypeFilter,
-    });
+  const toggleSortOrder = () => {
+    setSortByDateAsc(prev => !prev);
     setPage(0);
   };
 
   const clearFilters = () => {
-    setBrandFilter("");
-    setCategoryFilter("");
-    setPriceRangeFilter("");
+    setBrandFilter([]);
+    setCategoryFilter([]);
+    setPriceRangeFilter([]);
+    setSkinTypeFilter([]);
     setSearchQuery("");
-    setAppliedFilters({
-      brand: "",
-      category: "",
-      priceRange: "",
-      skinType: "",
-    });
-    setPage(1);
+    setPage(0);
   };
+
   return (
-    <Container sx={{ marginTop: "20px" }}>
-      <Box display={"flex"} justifyContent={"space-between"} sx={{ marginBottom: "10px" }}>
-        <Typography variant="h5" gutterBottom>
-          Danh sách sản phẩm
-        </Typography>
-        <Box display={"flex"} gap={2}>
-          <TextField
-            label="Tìm kiếm sản phẩm"
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <Button variant="contained" color="primary" onClick={handleOpen}>
-            Thêm sản phẩm
-          </Button>
-        </Box>
-      </Box>
-      <FilterSection
-        isLoadingBrands={isLoadingBrands}
-        isLoadingCategories={isLoadingCategories}
-        isLoadingSkins={isLoadingSkins}
-        brands={brands}
-        categories={categories}
-        skins={skins}
-        brandFilter={brandFilter}
-        setBrandFilter={setBrandFilter}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        priceRangeFilter={priceRangeFilter}
-        setPriceRangeFilter={setPriceRangeFilter}
-        skinTypeFilter={skinTypeFilter}
-        setSkinTypeFilter={setSkinTypeFilter}
-        priceRanges={priceRanges}
-        applyFilters={applyFilters}
-        clearFilters={clearFilters}
-      />
-      {isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
-        <LoadingSection />
-      ) : (
-        categories &&
-        skins &&
-        brands && (
-          <ProductsTable
-            products={filteredProducts ?? []}
-            page={page}
-            setPage={setPage}
-            categories={categories}
-            isLoadingCategories={isLoadingCategories}
-            brands={brands}
+    <Container maxWidth="xl" sx={{ marginTop: "20px" }}>
+      <Grid container spacing={4} sx={{ marginBottom: "20px" }}>
+        <Grid item xs={12} md={2}>
+          <FilterSection
             isLoadingBrands={isLoadingBrands}
-            skins={skins}
+            isLoadingCategories={isLoadingCategories}
             isLoadingSkins={isLoadingSkins}
+            brands={brands}
+            categories={categories}
+            skins={skins}
+            brandFilter={brandFilter}
+            setBrandFilter={setBrandFilter}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            priceRangeFilter={priceRangeFilter}
+            setPriceRangeFilter={setPriceRangeFilter}
+            skinTypeFilter={skinTypeFilter}
+            setSkinTypeFilter={setSkinTypeFilter}
+            priceRanges={priceRanges}
+            clearFilters={clearFilters}
           />
-        )
-      )}
+        </Grid>
+        <Grid item xs={12} md={10}>
+          <Box display={"flex"} justifyContent={"space-between"} sx={{ marginBottom: "10px" }}>
+            <Typography variant="h5" gutterBottom>
+              Danh sách sản phẩm
+            </Typography>
+            <Box display={"flex"} flexDirection={"column"} gap={2}>
+              <Box display={"flex"} gap={2} alignItems="center">
+                <TextField
+                  size="small"
+                  label="Tìm kiếm sản phẩm"
+                  variant="outlined"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+
+                <Button variant="contained" color="primary" onClick={handleOpen}>
+                  Thêm sản phẩm
+                </Button>
+              </Box>
+              <Box display={"flex"} alignItems={"center"} justifyContent={"flex-end"}>
+                <Button
+                  variant="text"
+                  onClick={toggleSortOrder}
+                  startIcon={sortByDateAsc ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+                  sx={{ mr: 1 }}
+                >
+                  Sắp xếp: {sortByDateAsc ? "Cũ nhất" : "Mới nhất"}
+                </Button>
+                <Button variant="text" onClick={clearFilters}>
+                  Xóa bộ lọc
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+
+          {isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              sx={{ alignItems: "center", height: "90vh", width: "100%" }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
+            categories &&
+            skins &&
+            brands && (
+              <ProductsTable
+                products={filteredProducts}
+                page={page}
+                setPage={setPage}
+                categories={categories}
+                isLoadingCategories={isLoadingCategories}
+                brands={brands}
+                isLoadingBrands={isLoadingBrands}
+                skins={skins}
+                isLoadingSkins={isLoadingSkins}
+              />
+            )
+          )}
+        </Grid>
+      </Grid>
+
       {!(isLoadingProducts || isLoadingBrands || isLoadingCategories || isLoadingSkins) &&
         categories &&
         brands &&

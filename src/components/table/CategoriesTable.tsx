@@ -100,10 +100,9 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Tên danh mục</TableCell>
-              <TableCell>Mô tả</TableCell>
               <TableCell>Ngày tạo</TableCell>
               <TableCell>Trạng thái</TableCell>
-              <TableCell>Hành động</TableCell>
+              <TableCell align="center">Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -111,7 +110,6 @@ const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, page, set
               <TableRow key={category.id}>
                 <TableCell>{category.id}</TableCell>
                 <TableCell>{category.name}</TableCell>
-                <TableCell>{category.description}</TableCell>
                 <TableCell>{new Date(category.createdAt).toLocaleString("vi-VN")}</TableCell>
                 <TableCell>
                   <Chip

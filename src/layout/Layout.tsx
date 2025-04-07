@@ -3,11 +3,8 @@ import React from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
-import useAuthStore from "@/hooks/useAuth";
-import { Roles } from "@/constants/status";
 
 const Layout: React.FC = () => {
-  const { user } = useAuthStore();
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Header */}
@@ -15,9 +12,7 @@ const Layout: React.FC = () => {
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, paddingTop: 2, paddingBottom: 2 }}>
-        <Container
-          maxWidth={user?.roleName === undefined || user.roleName === Roles.USER ? "lg" : "xl"}
-        >
+        <Container maxWidth="xl">
           <Outlet />
         </Container>
       </Box>

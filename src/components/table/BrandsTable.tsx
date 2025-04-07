@@ -48,7 +48,7 @@ const BrandsTable: React.FC<BrandsTableProps> = ({ brands, page, setPage }) => {
       if (error?.status === 400 || error?.status === 403) {
         showAlert("Vui lòng đăng nhập để tiếp tục", "error");
         navigate("/dang-nhap");
-      } else showAlert("Cập nhật danh mục thất bại", "error");
+      } else showAlert("Cập nhật thương hiệu thất bại", "error");
     },
   });
 

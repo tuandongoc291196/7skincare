@@ -10,9 +10,12 @@ import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { getProvince } from "@/apis/address";
 import OrderConfirmationDialog from "../dialog/OrderConfirmationDialog";
+import { CartProduct } from "@/types/schema/cart";
+import { getAccountById } from "@/apis/account";
+import { OrderStatuses } from "@/constants/status";
 
 interface CartSummaryProps {
-  items: { price: number; quantity: number; id: number; name: string }[];
+  items: CartProduct[];
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
@@ -27,14 +30,18 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
     queryKey: ["get-provinces"],
     queryFn: () => getProvince(),
   });
-
+  const { data: userData, isLoading: isLoadingUserData } = useQuery({
+    queryKey: ["get-user-by-id"],
+    queryFn: () => getAccountById(user?.accountId as number),
+    enabled: !!user,
+  });
   const createOrderMutation = useMutation({
     mutationKey: ["create-order"],
     mutationFn: (data: OrderData) => createOrder(data),
     onSuccess: async res => {
       showAlert("Tạo đơn hàng thành công", "success");
       clearCart();
-      navigate(`/theo-doi-don-hang?id=${res.data.id}`);
+      navigate(`/theo-doi-don-hang?id=${res.data.id}&status=${OrderStatuses.PENDING}`);
       await queryClient.invalidateQueries({ queryKey: ["get-products"] });
     },
     onError: (error: AxiosError) => {
@@ -57,7 +64,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   return (
     <Box sx={{ p: 3, border: `1px solid ${theme.palette.divider}`, borderRadius: 2, boxShadow: 2 }}>
-      {isLoading ? (
+      {isLoading || isLoadingUserData ? (
         <Box display="flex" justifyContent="center" sx={{ alignItems: "center", height: "100%" }}>
           <CircularProgress />
         </Box>
@@ -102,8 +109,9 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
               onClose={() => setOpenModal(false)}
               onConfirmOrder={handleOrder}
               items={items}
-              user={user}
               provinceData={provinceData.slice(1)}
+              userAddress={userData?.address ?? ""}
+              user={user}
             />
           )}
         </>

@@ -34,7 +34,6 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
     queryFn: () => getStatusHistory(order?.id ?? 0),
     enabled: !!order,
   });
-  console.log(steps);
 
   if (!order) return null;
 
@@ -127,7 +126,10 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
                   }}
                 >
                   <Typography>
-                    <strong>Tên sản phẩm:</strong> {product.productResponse.name}
+                    <strong>Tên sản phẩm:</strong> {product.productDetailResponse.name}
+                  </Typography>
+                  <Typography>
+                    <strong>Dung tích:</strong> {product.productDetailResponse.capacity}
                   </Typography>
                   <Typography>
                     <strong>Số lượng:</strong> {product.quantity}

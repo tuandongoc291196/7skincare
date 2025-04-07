@@ -6,10 +6,10 @@ import ProductCard from "../card/ProductCard";
 
 interface ResultSkinTestSectionProps {
   result: SkinTestResult;
-  totalPoint: number;
+  isHistory?: boolean;
 }
 
-const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result, totalPoint }) => {
+const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result, isHistory }) => {
   return (
     <Container>
       <Card
@@ -34,7 +34,9 @@ const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result, t
         </Avatar>
         <CardContent>
           <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-            Cảm ơn bạn đã hoàn thành bài kiểm tra!
+            {isHistory
+              ? `Ngày kiểm tra: ${new Date(result.createdAt).toLocaleDateString("vi-VN")}`
+              : "Cảm ơn bạn đã hoàn thành bài kiểm tra!"}
           </Typography>
           <Typography
             variant="h6"
@@ -44,7 +46,7 @@ const ResultSkinTestSection: React.FC<ResultSkinTestSectionProps> = ({ result, t
               mt: 1,
             }}
           >
-            Tổng điểm: {result.totalPoint} / {totalPoint}
+            Tổng điểm: {result.totalPoint} / {result.maxPoint}
           </Typography>
           <Typography
             variant="h6"

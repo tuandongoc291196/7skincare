@@ -38,6 +38,8 @@ const UpdateCategoryDialog: React.FC<UpdateCategoryDialogProps> = ({
           margin="dense"
           label="Mô tả"
           fullWidth
+          multiline
+          rows={5}
           value={category?.description || ""}
           onChange={e => handleInputChange("description", e.target.value)}
         />

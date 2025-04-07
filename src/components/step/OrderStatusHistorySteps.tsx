@@ -12,7 +12,7 @@ const OrderStatusHistorySteps = ({ steps }: OrderStatusHistoryStepsProps) => {
     switch (status) {
       case OrderStatuses.PENDING:
         return {
-          label: "Chờ xử lý",
+          label: "Đang xử lý",
           color: "warning",
           icon: <HourglassEmpty fontSize="small" />,
         };

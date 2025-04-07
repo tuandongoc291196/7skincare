@@ -1,7 +1,10 @@
 export interface CartProduct {
-  id: number;
+  productId: number;
+  productDetailId: number;
   name: string;
   price: number;
   quantity: number;
   image: string;
+  capacity: string;
+  maxQuantity: number;
 }

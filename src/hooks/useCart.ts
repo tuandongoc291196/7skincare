@@ -16,11 +16,12 @@ export const useCartStore = create<CartStore>()(
       items: [],
       addItem: item =>
         set(state => {
-          const existingItem = state.items.find(i => i.id === item.id);
+          const existingItem = state.items.find(i => i.productDetailId === item.productDetailId);
           if (existingItem) {
+            const newQuantity = Math.min(existingItem.quantity + item.quantity, item.maxQuantity);
             return {
               items: state.items.map(i =>
-                i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+                i.productDetailId === item.productDetailId ? { ...i, quantity: newQuantity } : i
               ),
             };
           }
@@ -28,11 +29,19 @@ export const useCartStore = create<CartStore>()(
         }),
       removeItem: id =>
         set(state => ({
-          items: state.items.filter(item => item.id !== id),
+          items: state.items.filter(item => item.productDetailId !== id),
         })),
       updateItem: (id, updatedItem) =>
         set(state => ({
-          items: state.items.map(item => (item.id === id ? { ...item, ...updatedItem } : item)),
+          items: state.items.map(item => {
+            if (item.productDetailId === id) {
+              const newQuantity = updatedItem.quantity
+                ? Math.min(Math.max(1, updatedItem.quantity), item.maxQuantity)
+                : item.quantity;
+              return { ...item, ...updatedItem, quantity: newQuantity };
+            }
+            return item;
+          }),
         })),
       clearCart: () => set({ items: [] }),
     }),

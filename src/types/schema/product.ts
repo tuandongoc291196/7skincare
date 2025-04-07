@@ -2,19 +2,32 @@ import { Status } from "@/constants/status";
 import { Category } from "./category";
 import { Brand } from "./brand";
 
+export interface ProductDetails {
+  id: number;
+  price: number;
+  quantity: number;
+  capacity: string;
+  createdAt: string;
+  status: Status;
+}
 export interface Product {
   id: number;
   name: string;
   description: string;
   image: string;
-  price: number;
-  quantity: number;
   status: Status;
   createdAt: string;
   category: Category;
   brand: Brand;
   createdBy: string;
   suitableFor: string;
+  effect: string;
+  ingredient: string;
+  instructionManual: string;
+  productSpecifications: string;
+  priceRange: string;
+  noOfSold: number;
+  productDetails: ProductDetails[];
 }
 
 export interface ProductCreate {
@@ -24,9 +37,12 @@ export interface ProductCreate {
   description: string;
   image: string;
   name: string;
-  price: number;
-  quantity: number;
   skinTypeId: number[];
+  effect: string;
+  ingredient: string;
+  instructionManual: string;
+  productSpecifications: string;
+  productDetails: { price: number; quantity: number; capacity: string }[];
 }
 
 export interface ProductUpdate {
@@ -36,7 +52,10 @@ export interface ProductUpdate {
   categoryId: number;
   description: string;
   name: string;
-  price: number;
-  quantity: number;
   skinTypeId: number[];
+  effect: string;
+  ingredient: string;
+  instructionManual: string;
+  productSpecifications: string;
+  productDetails: { id: number; price: number; quantity: number; capacity: string }[];
 }
