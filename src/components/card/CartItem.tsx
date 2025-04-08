@@ -1,17 +1,7 @@
-// components/card/CartItem.tsx
-import React from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { TableRow, TableCell, Box, Typography, TextField, Button } from "@mui/material";
 import { Delete, Add, Remove } from "@mui/icons-material";
 import { styled } from "@mui/system";
 import { CartProduct } from "@/types/schema/cart";
-
-const CartItemStyled = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(2),
-  borderBottom: `1px solid #0000001f`,
-  gap: 10,
-}));
 
 const QuantityControl = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -19,6 +9,7 @@ const QuantityControl = styled(Box)(({ theme }) => ({
   border: `1px solid #0000001f`,
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
+  width: "fit-content",
 }));
 
 const QuantityButton = styled(Button)(() => ({
@@ -36,31 +27,28 @@ interface CartItemProps {
 
 const CartItem: React.FC<CartItemProps> = ({ item, maxQuantity, onQuantityChange, onRemove }) => {
   return (
-    <CartItemStyled>
-      <Box sx={{ display: "flex", alignItems: "center", width: "50%" }}>
-        <img
-          src={item.image}
-          alt={item.name}
-          style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }}
-        />
-        <Box sx={{ ml: 2 }}>
-          <Typography variant="body1">{item.name}</Typography>
-          <Typography variant="body2" color="textSecondary">
-            Dung tích: {item.capacity}
-          </Typography>
+    <TableRow>
+      <TableCell>
+        <Box display="flex" alignItems="center">
+          <img
+            src={item.image}
+            alt={item.name}
+            style={{ width: 60, height: 60, objectFit: "cover", borderRadius: "8px" }}
+          />
+          <Box ml={2}>
+            <Typography fontSize={14} fontWeight={500}>
+              {item.name}
+            </Typography>
+            <Typography fontSize={12} color="textSecondary">
+              Dung tích: {item.capacity}
+            </Typography>
+          </Box>
         </Box>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "50%",
-        }}
-      >
-        <Typography variant="body1" sx={{ ml: 2 }}>
-          {item.price.toLocaleString()}₫
-        </Typography>
+      </TableCell>
+      <TableCell align="center">
+        <Typography fontSize={14}>{item.price.toLocaleString()}₫</Typography>
+      </TableCell>
+      <TableCell sx={{ placeItems: "center" }}>
         <QuantityControl>
           <QuantityButton
             onClick={() => onQuantityChange(item.productDetailId, item.quantity - 1)}
@@ -80,7 +68,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, maxQuantity, onQuantityChange
             onKeyDown={e => {
               if (e.key === "-" || e.key === "e") e.preventDefault();
             }}
-            sx={{ width: 50, textAlign: "center", border: "none" }}
+            sx={{ width: 50, textAlign: "center" }}
             inputProps={{ min: 1, max: maxQuantity, style: { textAlign: "center" } }}
             variant="standard"
           />
@@ -91,11 +79,14 @@ const CartItem: React.FC<CartItemProps> = ({ item, maxQuantity, onQuantityChange
             <Add fontSize="small" />
           </QuantityButton>
         </QuantityControl>
-        <Button onClick={() => onRemove(item.productDetailId)} color="error" sx={{ ml: 2 }}>
+      </TableCell>
+
+      <TableCell align="center">
+        <Button onClick={() => onRemove(item.productDetailId)} color="error">
           <Delete />
         </Button>
-      </Box>
-    </CartItemStyled>
+      </TableCell>
+    </TableRow>
   );
 };
 

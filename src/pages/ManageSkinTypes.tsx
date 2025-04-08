@@ -34,7 +34,7 @@ const ManageSkinTypes = () => {
   );
 
   return (
-    <Container sx={{ marginTop: "20px" }}>
+    <Container  maxWidth="xl" sx={{ marginTop: "20px" }}>
       <Box display={"flex"} justifyContent={"space-between"} sx={{ marginBottom: "10px" }}>
         <Typography variant="h5" gutterBottom>
           Danh sách loại da

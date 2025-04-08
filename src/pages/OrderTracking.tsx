@@ -45,7 +45,7 @@ const OrderTracking: React.FC = () => {
   const orders = [...filteredOrders].reverse();
 
   return (
-    <Container sx={{ mt: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
         Theo dõi đơn hàng
       </Typography>

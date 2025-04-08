@@ -22,7 +22,7 @@ const Blog: React.FC = () => {
   const paginatedBlogs = data?.slice((page - 1) * perPage, page * perPage);
 
   return (
-    <Container>
+    <Container maxWidth="xl">
       {isLoading ? (
         <LoadingSection />
       ) : (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, CircularProgress, Typography, useTheme } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Typography, useTheme } from "@mui/material";
 import useAuthStore from "@/hooks/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createOrder } from "@/apis/order";
@@ -59,7 +59,13 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
   const handleOrder = (orderData: OrderData) => {
     createOrderMutation.mutate(orderData);
   };
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    if (!user) {
+      navigate("/dang-nhap");
+      return;
+    }
+    setOpenModal(true);
+  };
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   return (
@@ -71,26 +77,40 @@ const CartSummary: React.FC<CartSummaryProps> = ({ items }) => {
       ) : (
         <>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            Tổng giỏ hàng
+            Thông tin đơn hàng
           </Typography>
-
           <Box
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
           >
-            <Typography>Phí vận chuyển:</Typography>
-            <Typography variant="body1" color="red">
-              25,000 VNĐ
+            <Typography fontWeight={500} fontSize={14}>
+              Tổng tiền hàng ({items.length} sản phẩm):
+            </Typography>
+            <Typography fontWeight={500} fontSize={14} color="gray">
+              {total.toLocaleString()} ₫
             </Typography>
           </Box>
           <Box
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
+          >
+            <Typography fontWeight={500} fontSize={14}>
+              Phí vận chuyển:
+            </Typography>
+            <Typography fontWeight={500} fontSize={14} color="gray">
+              {(25000).toLocaleString()} ₫
+            </Typography>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Box
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
           >
-            <Typography>Tạm tính</Typography>
-            <Typography variant="h5" fontWeight={600}>
+            <Typography fontWeight={600} fontSize={16}>
+              Tổng cộng
+            </Typography>
+            <Typography fontSize={18} fontWeight={600}>
               {(total + 25000).toLocaleString()} VNĐ
             </Typography>
           </Box>
-          <Typography variant="body2" color="textSecondary" mb={1}>
+          <Typography variant="body2" color="textSecondary" mb={1} fontWeight={500}>
             Vui lòng kiểm tra kĩ thông tin trước khi đặt hàng
           </Typography>
           <Button

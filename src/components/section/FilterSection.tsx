@@ -89,7 +89,11 @@ const FilterSection = ({
   return (
     <Box sx={{ bgcolor: "#e9f5ff", borderRadius: 1, p: 2, width: "100%" }}>
       {isLoadingBrands || isLoadingCategories || isLoadingSkins ? (
-        <Box display="flex" justifyContent="center" sx={{ alignItems: "center", height: "100%" }}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          sx={{ alignItems: "center", minHeight: "90vh" }}
+        >
           <CircularProgress />
         </Box>
       ) : (
@@ -112,6 +116,7 @@ const FilterSection = ({
                       />
                     }
                     label={category.name}
+                    sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
                   />
                 ))}
               </FormGroup>
@@ -137,6 +142,7 @@ const FilterSection = ({
                       />
                     }
                     label={brand.name}
+                    sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
                   />
                 ))}
               </FormGroup>
@@ -162,6 +168,7 @@ const FilterSection = ({
                       />
                     }
                     label={skinTypeMap[skin.type] || skin.type}
+                    sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
                   />
                 ))}
               </FormGroup>
@@ -187,6 +194,7 @@ const FilterSection = ({
                       />
                     }
                     label={range.label}
+                    sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
                   />
                 ))}
               </FormGroup>

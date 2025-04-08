@@ -28,7 +28,7 @@ const BlogDetail: React.FC = () => {
   }
 
   return (
-    <Container>
+    <Container maxWidth="xl">
       <Box sx={{ my: 4 }}>
         <Typography variant="h3" gutterBottom>
           {data.title}
