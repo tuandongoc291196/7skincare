@@ -24,6 +24,7 @@ import { AxiosError } from "axios";
 import { useAlert } from "@/hooks/useAlert";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RejectReasonDialog from "../dialog/RejectReasonDialog";
+import DoneConfirmationDialog from "../dialog/DoneConfirmationDialog";
 
 interface OrdersTableProps {
   orders: Order[];
@@ -44,13 +45,15 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
   const [id, setId] = useState<number>();
   const [reason, setReason] = useState("");
   const [openRejectReason, setOpenRejectReason] = useState(false);
+  const [openDone, setOpenDone] = useState(false);
+
   const approveOrderMutation = useMutation({
     mutationKey: ["approve-order"],
     mutationFn: (id: number) => approveOrder(id),
     onSuccess: async data => {
       await queryClient.invalidateQueries({ queryKey: ["get-orders"] });
       showAlert("Chấp nhận đơn hàng thành công", "success");
-      window.location.href = `/quan-ly-don-hang?id=${data.data.id}`;
+      window.location.href = `/quan-ly-don-hang?id=${data.data.id}&status=${OrderStatuses.APPROVED}`;
     },
     onError: (error: AxiosError) => {
       if (error?.status === 403) {
@@ -61,11 +64,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
   });
   const doneOrderMutation = useMutation({
     mutationKey: ["done-order"],
-    mutationFn: (id: number) => doneOrder(id),
+    mutationFn: (data: { id: number; reason: string }) => doneOrder(data.id, data.reason),
     onSuccess: async data => {
       await queryClient.invalidateQueries({ queryKey: ["get-orders"] });
+      setId(undefined);
+      setOpenDone(false);
+      setReason("");
       showAlert("Xác nhận giao hàng thành công", "success");
-      window.location.href = `/quan-ly-don-hang?id=${data.data.id}`;
+      window.location.href = `/quan-ly-don-hang?id=${data.data.id}&status=${OrderStatuses.DONE}`;
     },
     onError: (error: AxiosError) => {
       if (error?.status === 403) {
@@ -83,7 +89,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
       setOpenRejectReason(false);
       setReason("");
       showAlert("Từ chối đơn hàng thành công", "success");
-      window.location.href = `/quan-ly-don-hang?id=${data.data.id}`;
+      window.location.href = `/quan-ly-don-hang?id=${data.data.id}&status=${OrderStatuses.REJECTED}`;
     },
     onError: (error: AxiosError) => {
       if (error?.status === 403) {
@@ -116,8 +122,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
   const handleApprove = (id: number) => {
     approveOrderMutation.mutate(id);
   };
-  const handleDone = (id: number) => {
-    doneOrderMutation.mutate(id);
+  const handleDone = (id: number, reason: string) => {
+    doneOrderMutation.mutate({ id, reason });
   };
   // Filter orders based on the selected status
   const filteredOrders =
@@ -164,6 +170,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Ngày tạo</TableCell>
+              <TableCell>Người nhận</TableCell>
               <TableCell>Địa chỉ</TableCell>
               <TableCell>Số điện thoại</TableCell>
               <TableCell>Tổng giá</TableCell>
@@ -177,6 +184,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
               <TableRow key={order.id}>
                 <TableCell>{order.id}</TableCell>
                 <TableCell>{new Date(order.createAt).toLocaleString("vi-VN")}</TableCell>
+                <TableCell>{order.account.name}</TableCell>
                 <TableCell>{order.address}</TableCell>
                 <TableCell>{order.phoneNumber}</TableCell>
                 <TableCell>{order.totalPrice.toLocaleString()}</TableCell>
@@ -260,7 +268,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
                       variant="outlined"
                       label={"Xác nhận giao hàng"}
                       color={"success"}
-                      onClick={() => handleDone(order.id)}
+                      onClick={() => {
+                        setId(order.id);
+                        setOpenDone(true);
+                      }}
                     />
                   </TableCell>
                 ) : (
@@ -284,6 +295,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, page, setPage }) => {
       />
 
       <OrderDetailDialog order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      <DoneConfirmationDialog
+        open={openDone}
+        handleClose={() => setOpenDone(false)}
+        setReason={setReason}
+        reason={reason}
+        onSubmit={handleDone}
+        orderId={id}
+      />
       <RejectReasonDialog
         open={openRejectReason}
         handleClose={() => setOpenRejectReason(false)}

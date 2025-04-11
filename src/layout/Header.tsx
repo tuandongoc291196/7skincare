@@ -172,7 +172,7 @@ const Header = () => {
 
       {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <Box sx={{ width: 280, p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+        <Box sx={{ width: 300, p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
           {/* Drawer Header with Close Button */}
           <Box
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
@@ -218,15 +218,26 @@ const Header = () => {
                   </ListItemButton>
                 </ListItem>
                 {(user === null || user.roleName === Roles.USER) && (
-                  <ListItem disablePadding>
-                    <ListItemButton onClick={() => navigate("/theo-doi-don-hang")}>
-                      <ListItemIcon>
-                        <ShoppingBag />
-                      </ListItemIcon>
-                      <ListItemText primary="Đơn hàng" />
-                    </ListItemButton>
-                  </ListItem>
+                  <>
+                    <ListItem disablePadding>
+                      <ListItemButton onClick={() => navigate("/theo-doi-don-hang")}>
+                        <ListItemIcon>
+                          <ShoppingBag />
+                        </ListItemIcon>
+                        <ListItemText primary="Đơn hàng" />
+                      </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                      <ListItemButton onClick={() => navigate("/lich-su-kiem-tra-loai-da")}>
+                        <ListItemIcon>
+                          <History />
+                        </ListItemIcon>
+                        <ListItemText primary="Lịch sử kiểm tra loại da" />
+                      </ListItemButton>
+                    </ListItem>
+                  </>
                 )}
+
                 <ListItem disablePadding>
                   <ListItemButton onClick={handleLogout}>
                     <ListItemIcon>

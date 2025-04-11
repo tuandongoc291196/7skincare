@@ -60,7 +60,7 @@ const OrderTrackingTable: React.FC<OrderTrackingTableProps> = ({ orders, page, s
       setId(undefined);
       setOpenRejectReason(false);
       setReason("");
-      navigate(`/theo-doi-don-hang?id=${data.data.id}`);
+      navigate(`/theo-doi-don-hang?id=${data.data.id}&status=${OrderStatuses.CANCELED}`);
       showAlert("Hủy đơn hàng thành công", "success");
       await queryClient.invalidateQueries({ queryKey: ["get-orders-by-account-id"] });
     },

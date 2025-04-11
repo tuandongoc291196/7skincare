@@ -35,8 +35,8 @@ const rejectOrder = async (id: number, reason: string) => {
   const response = await apiClient.put(BASE_PATH + `/reject/?id=${id}&reason=${reason}`);
   return response.data;
 };
-const doneOrder = async (id: number) => {
-  const response = await apiClient.put(BASE_PATH + `/done/?id=${id}`);
+const doneOrder = async (id: number, reason: string) => {
+  const response = await apiClient.put(BASE_PATH + `/done/?id=${id}&reason=${reason}`);
   return response.data;
 };
 const getStatusHistory = async (id: number) => {

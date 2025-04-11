@@ -24,7 +24,7 @@ const deleteAccount = async (id: number) => {
 };
 
 const activateAccount = async (id: number) => {
-  const response = await apiClient.put(BASE_PATH + "/activate/", { params: { id: id } });
+  const response = await apiClient.put(BASE_PATH + `/activate/?id=${id}`);
   return response.data;
 };
 

@@ -41,7 +41,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Typography fontSize={20} fontWeight={600}>
-          Chi tiết đơn hàng
+          Chi tiết đơn hàng #{order.id}
         </Typography>
       </DialogTitle>
       <DialogContent dividers>
@@ -135,7 +135,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({ open, onClose, order }) => {
                     <strong>Số lượng:</strong> {product.quantity}
                   </Typography>
                   <Typography>
-                    <strong>Giá:</strong> {(product.price / product.quantity).toLocaleString()} VNĐ
+                    <strong>Giá:</strong> {(product.price * product.quantity).toLocaleString()} VNĐ
                   </Typography>
                 </Box>
               ))}

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProductById } from "@/apis/product";
 import {
   Container,
@@ -24,6 +24,7 @@ import { CartProduct } from "@/types/schema/cart";
 import CapacitySelector from "@/components/selector/CapacitySelector";
 
 const ProductDetail = () => {
+  const queryClient = useQueryClient();
   const [tabIndex, setTabIndex] = useState(0);
   const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -62,8 +63,7 @@ const ProductDetail = () => {
       setQuantity(value);
     }
   };
-
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) {
       return;
     }
@@ -72,25 +72,46 @@ const ProductDetail = () => {
       return;
     }
 
-    const selectedDetail = product!.productDetails.find(detail => detail.id === selectedDetailId);
-    if (!selectedDetail) return;
+    // Re-fetch the latest product data before adding to the cart
+    try {
+      await queryClient.invalidateQueries({ queryKey: ["get-product", productId] });
+      const updatedProduct = await getProductById(productId);
+      const selectedDetail = updatedProduct.productDetails.find(
+        detail => detail.id === selectedDetailId
+      );
 
-    const isProductInCart = items.some(item => item.productDetailId === selectedDetail.id);
-    if (isProductInCart) {
-      showAlert("Sản phẩm với dung tích này đã có trong giỏ hàng", "error");
-    } else {
-      const cartItem: CartProduct = {
-        productId: product?.id,
-        productDetailId: selectedDetail.id,
-        image: product!.image,
-        name: `${product!.name}`,
-        price: selectedDetail.price,
-        quantity: quantity,
-        capacity: selectedDetail.capacity,
-        maxQuantity: selectedDetail.quantity,
-      };
-      addItem(cartItem);
-      showAlert("Thêm vào giỏ hàng thành công", "success");
+      if (!selectedDetail) {
+        showAlert("Không tìm thấy chi tiết sản phẩm", "error");
+        return;
+      }
+
+      if (selectedDetail.quantity < quantity) {
+        showAlert("Số lượng yêu cầu vượt quá số lượng có sẵn", "error");
+        return;
+      }
+
+      const isProductInCart = items.some(item => item.productDetailId === selectedDetail.id);
+
+      if (isProductInCart) {
+        showAlert("Sản phẩm với dung tích này đã có trong giỏ hàng", "error");
+      } else {
+        const cartItem: CartProduct = {
+          productId: updatedProduct.id,
+          productDetailId: selectedDetail.id,
+          image: updatedProduct.image,
+          name: `${updatedProduct.name}`,
+          price: selectedDetail.price,
+          quantity: quantity,
+          capacity: selectedDetail.capacity,
+          maxQuantity: selectedDetail.quantity,
+        };
+
+        addItem(cartItem);
+        showAlert("Thêm vào giỏ hàng thành công", "success");
+      }
+    } catch (error) {
+      console.error(error);
+      showAlert("Có lỗi xảy ra, vui lòng thử lại sau", "error");
     }
   };
 

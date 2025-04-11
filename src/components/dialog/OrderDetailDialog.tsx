@@ -26,7 +26,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ order, onClose })
     <Dialog open={!!order} onClose={onClose} maxWidth="sm" fullWidth>
       {/* Dialog Header */}
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        Chi tiết đơn hàng
+        Chi tiết đơn hàng #{order.id}
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>

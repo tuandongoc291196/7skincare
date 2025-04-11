@@ -1,6 +1,7 @@
 import { OrderStatus, Status } from "@/constants/status";
 import { Category } from "./category";
 import { Brand } from "./brand";
+import { Account } from "./user";
 
 export interface OrderData {
   accountId: number;
@@ -47,6 +48,7 @@ export interface Order {
   status: OrderStatus;
   reason: string;
   listProducts: OrderProduct[];
+  account: Account;
 }
 
 export interface OrderHistorySteps {
